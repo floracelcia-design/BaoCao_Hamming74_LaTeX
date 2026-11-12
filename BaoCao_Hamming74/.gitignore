@@ -1,0 +1,49 @@
+# ==========================================================
+# .gitignore - BTL DSTT Nhom 10 (Hamming 7,4)
+# Dat file nay o THU MUC GOC cua repo, truoc khi tao repo.
+# ==========================================================
+
+# ----- LaTeX: file trung gian sinh ra khi bien dich -----
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.lol
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.xdv
+*.idx
+*.ilg
+*.ind
+*.nav
+*.snm
+*.vrb
+_minted*/
+
+# File PDF bien dich ra cua bao cao.
+# KHONG chan moi *.pdf, vi hinh ve trong bao cao co the la file PDF.
+# (main.pdf o thu muc goc cua repo)
+/main.pdf
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# ----- Trinh soan thao / he dieu hanh -----
+.vscode/
+Thumbs.db
+desktop.ini
+.DS_Store
+*~

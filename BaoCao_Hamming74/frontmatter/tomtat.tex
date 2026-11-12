@@ -1,0 +1,37 @@
+% =====================================================================
+%  Tóm tắt bài báo cáo (TV1)
+%  Chỉ nêu kết quả đã kiểm chứng. Số BER ở đoạn cuối là giá trị LÝ THUYẾT
+%  (tính chính xác bằng vét cạn 128 mẫu lỗi, đối chiếu mô phỏng 400.000
+%  khối): BER = tỉ lệ bit DỮ LIỆU sai sau giải mã. Khi Chương 5 (TV9) có
+%  bảng mô phỏng, kiểm tra các số trong Bảng 5.3 khớp với đoạn này (cùng
+%  định nghĩa BER, sai khác chỉ do nhiễu mô phỏng).
+% =====================================================================
+\chuongphu{TÓM TẮT BÀI BÁO CÁO}
+
+Báo cáo trình bày mã Hamming (7,4) dưới góc nhìn đại số tuyến tính trên trường
+$\GF$ và xây dựng phần mềm mô phỏng quá trình mã hóa, gây nhiễu, phát hiện và
+sửa lỗi cho chuỗi ký tự. Mã được xét ở dạng hệ thống: khối dữ liệu $4$ bit $u$
+được mã hóa thành từ mã $7$ bit $c = uG$ với ma trận tạo mã
+$G = [\,I_4 \mid P\,]$; bên nhận tính hội chứng $s = r\HT$ với ma trận kiểm tra
+$H = [\,\PT \mid I_3\,]$ để xác định và sửa một bit sai.
+
+Phần lý thuyết chứng minh $G\HT = 0$ và khoảng cách Hamming tối thiểu
+$\dmin = 3$ từ các cột của $H$, rồi giải thích vì sao mã (7,4) là mã hoàn hảo:
+sửa được mọi mẫu một lỗi nhưng sửa nhầm mọi mẫu hai lỗi, nên không thể vừa sửa
+một lỗi vừa phát hiện hai lỗi. Để khắc phục, báo cáo xét mã Hamming mở rộng
+(8,4) có thêm bit kiểm tra tổng thể, cho phép phát hiện lỗi kép. Các ví dụ tính
+tay được thực hiện trên khối dữ liệu $1011$ và trên ký tự \code{'A'}.
+
+Phần mềm viết bằng Python gồm các module mã hóa và giải mã một khối, chuyển đổi
+giữa chuỗi ký tự và các khối $4$ bit, giả lập kênh đối xứng nhị phân (BSC) và
+kiểm thử tự động. Kiểm tra vét cạn trên $16$ khối dữ liệu và $128$ mẫu lỗi trong
+một từ mã cho thấy bộ giải mã (7,4) khôi phục đúng dữ liệu khi và chỉ khi có
+không quá một bit lỗi. Trên kênh BSC, tỉ lệ lỗi bit dữ liệu sau giải mã (BER)
+tính theo lý thuyết giảm từ $0{,}01$ xuống khoảng $0{,}00087$ khi xác suất đảo
+bit $p = 0{,}01$, còn khoảng $0{,}0194$ khi $p = 0{,}05$ và $0{,}0669$ khi
+$p = 0{,}1$; lợi ích của mã giảm dần khi kênh xấu đi.
+
+\vspace{0.5em}
+\noindent\textbf{Từ khóa:} mã Hamming (7,4), mã Hamming mở rộng (8,4), trường
+$\GF$, mã khối tuyến tính, ma trận tạo mã, ma trận kiểm tra, hội chứng, khoảng
+cách Hamming, kênh đối xứng nhị phân.

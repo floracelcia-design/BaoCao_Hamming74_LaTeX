@@ -1,0 +1,4 @@
+# Overleaf / latexmk: biên dịch bằng XeLaTeX, bật shell-escape cho minted
+$pdf_mode = 5;
+$postscript_mode = $dvi_mode = 0;
+$xelatex = 'xelatex -shell-escape -synctex=1 -interaction=nonstopmode %O %S';

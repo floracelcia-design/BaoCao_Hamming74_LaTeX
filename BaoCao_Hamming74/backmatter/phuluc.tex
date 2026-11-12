@@ -1,0 +1,30 @@
+% =====================================================================
+%  PHỤ LỤC
+%  Mã nguồn đặt trong thư mục code/. Thay nội dung các file .py bằng mã
+%  nguồn cuối cùng của nhóm; LaTeX tự đọc lại khi biên dịch.
+% =====================================================================
+\chuongphu{PHỤ LỤC}
+
+\phantomsection
+\addcontentsline{toc}{section}{Phụ lục A: Mã nguồn chương trình Python}
+\section*{Phụ lục A: Mã nguồn chương trình Python}
+\label{phuluc:A}
+
+\renewcommand{\thechuongtrinh}{A.\arabic{chuongtrinh}}
+\setcounter{chuongtrinh}{0}
+
+\maNguon{code/hamming.py}
+  {\code{hamming.py} -- mã hóa, hội chứng và giải mã một khối (7,4)}
+  {lst:hamming}
+
+\maNguon{code/text_codec.py}
+  {\code{text\_codec.py} -- chuyển đổi chuỗi ký tự và dãy bit}
+  {lst:textcodec}
+
+\maNguon{code/channel.py}
+  {\code{channel.py} -- giả lập kênh truyền có nhiễu}
+  {lst:channel}
+
+\maNguon{code/test_hamming.py}
+  {\code{test\_hamming.py} -- bộ ca kiểm thử tự động}
+  {lst:test}

@@ -1,0 +1,68 @@
+% =====================================================================
+%  config/macros.tex — ký hiệu chuẩn của nhóm 10
+%  Theo "bang_ky_hieu_chuan" (chốt 08/11/2026) và
+%  "quy_uoc_chung_dang_he_thong" (chốt 06/11/2026):
+%    - u, c, r, e, s là VECTƠ HÀNG; c = u G; s = r H^T;
+%    - mọi phép cộng là cộng mod 2 (XOR), ký hiệu \oplus;
+%    - dạng hệ thống: c = (u1 u2 u3 u4 p1 p2 p3);
+%    - báo cáo đánh số bit 1..7, Python đánh số 0..6.
+%  Dùng các lệnh dưới đây thay vì gõ tay để cả báo cáo thống nhất.
+% =====================================================================
+
+% Trường, không gian, phép toán
+\newcommand{\GF}{\mathrm{GF}(2)}                 % GF(2)
+\newcommand{\GFn}[1]{\mathrm{GF}(2)^{#1}}        % GF(2)^n
+\newcommand{\xor}{\oplus}                         % cộng mod 2
+\newcommand{\tp}{^{\mathsf{T}}}                   % chuyển vị: H\tp
+\newcommand{\HT}{H^{\mathsf{T}}}                  % H^T
+\newcommand{\PT}{P^{\mathsf{T}}}                  % P^T
+\newcommand{\dmin}{d_{\min}}                      % khoảng cách tối thiểu
+\newcommand{\wt}[1]{w(#1)}                        % trọng số Hamming
+\newcommand{\dist}[2]{d(#1,#2)}                   % khoảng cách Hamming
+\newcommand{\Hmr}{H'}                             % ma trận kiểm tra mở rộng 4x8
+\DeclareMathOperator{\rank}{rank}
+\newcommand{\vt}[1]{(#1)}                         % vectơ: \vt{1,0,1}
+\newcommand{\bit}[1]{\texttt{#1}}                 % chuỗi bit trong văn bản
+\newcommand{\code}[1]{\texttt{#1}}                % tên hàm, biến, file
+
+% ---------------- Các ma trận đã chốt (dạng hệ thống) ---------------
+% P (4x3)
+\newcommand{\MatP}{\begin{bmatrix}
+  1 & 1 & 0\\ 1 & 0 & 1\\ 0 & 1 & 1\\ 1 & 1 & 1
+\end{bmatrix}}
+
+% G = [I_4 | P] (4x7)
+\newcommand{\MatG}{\left[\begin{array}{cccc|ccc}
+  1 & 0 & 0 & 0 & 1 & 1 & 0\\
+  0 & 1 & 0 & 0 & 1 & 0 & 1\\
+  0 & 0 & 1 & 0 & 0 & 1 & 1\\
+  0 & 0 & 0 & 1 & 1 & 1 & 1
+\end{array}\right]}
+
+% H = [P^T | I_3] (3x7)
+\newcommand{\MatH}{\left[\begin{array}{cccc|ccc}
+  1 & 1 & 0 & 1 & 1 & 0 & 0\\
+  1 & 0 & 1 & 1 & 0 & 1 & 0\\
+  0 & 1 & 1 & 1 & 0 & 0 & 1
+\end{array}\right]}
+
+% H^T (7x3): hàng thứ j là cột h_j của H
+\newcommand{\MatHT}{\left[\begin{array}{ccc}
+  1 & 1 & 0\\ 1 & 0 & 1\\ 0 & 1 & 1\\ 1 & 1 & 1\\ \hline
+  1 & 0 & 0\\ 0 & 1 & 0\\ 0 & 0 & 1
+\end{array}\right]}
+
+% H' (4x8) của mã mở rộng (8,4)
+\newcommand{\MatHmr}{\left[\begin{array}{ccccccc|c}
+  1 & 1 & 0 & 1 & 1 & 0 & 0 & 0\\
+  1 & 0 & 1 & 1 & 0 & 1 & 0 & 0\\
+  0 & 1 & 1 & 1 & 0 & 0 & 1 & 0\\ \hline
+  1 & 1 & 1 & 1 & 1 & 1 & 1 & 1
+\end{array}\right]}
+
+% H dạng cổ điển (cột j là số j viết nhị phân, hàng 1 là bit thấp nhất)
+\newcommand{\MatHcd}{\begin{bmatrix}
+  1 & 0 & 1 & 0 & 1 & 0 & 1\\
+  0 & 1 & 1 & 0 & 0 & 1 & 1\\
+  0 & 0 & 0 & 1 & 1 & 1 & 1
+\end{bmatrix}}

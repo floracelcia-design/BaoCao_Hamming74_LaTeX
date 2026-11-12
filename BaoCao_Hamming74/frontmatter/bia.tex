@@ -1,0 +1,41 @@
+% =====================================================================
+%  Trang bìa chính
+% =====================================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  % Khung đôi giống bìa mẫu BTLDSTT.pdf: viền ngoài đậm, viền trong mảnh
+  \draw[line width=0.9pt]
+    ($(current page.north west)+(2.0cm,-1.5cm)$) rectangle
+    ($(current page.south east)+(-1.0cm,1.5cm)$);
+  \draw[line width=0.4pt]
+    ($(current page.north west)+(2.0cm,-1.5cm)+(1.4mm,-1.4mm)$) rectangle
+    ($(current page.south east)+(-1.0cm,1.5cm)+(-1.4mm,1.4mm)$);
+\end{tikzpicture}%
+\centering
+\setstretch{1.15}
+\vspace*{0.3cm}
+{\bfseries
+ĐẠI HỌC QUỐC GIA TP. HỒ CHÍ MINH\\
+TRƯỜNG ĐẠI HỌC BÁCH KHOA\\
+KHOA KHOA HỌC ỨNG DỤNG\par}
+\vspace{0.8cm}
+\includegraphics[width=3.2cm]{logo_bk}\par
+\vspace{1.4cm}
+{\bfseries\fontsize{16pt}{20pt}\selectfont BÁO CÁO BÀI TẬP LỚN\par}
+\vspace{0.3cm}
+{\bfseries\large MÔN HỌC: ĐẠI SỐ TUYẾN TÍNH (MT1007)\par}
+\vspace{1.2cm}
+{\bfseries ĐỀ TÀI (ĐỀ TÀI 10):\par}
+\vspace{0.4cm}
+{\bfseries\large\setstretch{1.35}
+MÃ HAMMING (7,4): MÔ PHỎNG MÃ HÓA, GÂY NHIỄU, PHÁT\\
+HIỆN VÀ SỬA LỖI CHO CHUỖI KÝ TỰ\par}
+\vfill
+{\bfseries LỚP: L06 \quad --- \quad NHÓM: 10\par}
+\vspace{0.4cm}
+{\bfseries GIẢNG VIÊN HƯỚNG DẪN: CÔ NGUYỄN XUÂN MỸ\par}
+\vspace{2.2cm}
+TP. HỒ CHÍ MINH, THÁNG 11/2026\par
+\vspace*{0.3cm}
+\end{titlepage}

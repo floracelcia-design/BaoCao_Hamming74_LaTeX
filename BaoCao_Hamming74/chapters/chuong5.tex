@@ -1,0 +1,119 @@
+% =====================================================================
+%  CHƯƠNG 5. KIỂM THỬ VÀ KẾT QUẢ THỰC NGHIỆM
+% =====================================================================
+\chapter{KIỂM THỬ VÀ KẾT QUẢ THỰC NGHIỆM}
+\label{chap:5}
+
+% ---------------------------------------------------------------------
+\section{Bộ 10 ca kiểm thử tự động}
+\label{sec:5.1}
+
+\begin{table}[H]
+\centering
+\caption{Bộ 10 ca kiểm thử tự động}
+\label{tab:10ca}
+\begin{tabular}{|c|p{5.2cm}|p{3.4cm}|p{3.4cm}|c|}
+\hline
+\textbf{STT} & \textbf{Nội dung kiểm thử} & \textbf{Đầu vào} &
+\textbf{Kết quả mong đợi} & \textbf{Đạt}\\ \hline
+1  & & & & \\ \hline
+2  & & & & \\ \hline
+3  & & & & \\ \hline
+4  & & & & \\ \hline
+5  & & & & \\ \hline
+6  & & & & \\ \hline
+7  & & & & \\ \hline
+8  & & & & \\ \hline
+9  & & & & \\ \hline
+10 & & & & \\ \hline
+\end{tabular}
+\end{table}
+
+\canviet{Điền theo \code{test\_hamming.py}. Gợi ý nhóm ca cần có: mã hóa đúng
+16 từ mã; $G\HT = 0$; không lỗi; sửa đúng mọi lỗi đơn (112/112); hai lỗi ở
+(7,4) bị sửa nhầm (336/336); hai lỗi ở (8,4) được phát hiện; chuỗi ký tự đầu --
+cuối; chuỗi rỗng; ký tự UTF-8; đầu vào sai kiểu/độ dài. Kèm ảnh hoặc log kết
+quả chạy.}
+
+% ---------------------------------------------------------------------
+\section{Phân loại kết quả theo số lỗi trong khối}
+\label{sec:5.2}
+
+Bảng~\ref{tab:theosoloi} là kết quả vét cạn: với mỗi dữ liệu $u$ (16 giá trị)
+và mỗi vectơ lỗi $e \in \GFn{7}$ (128 giá trị), giải mã $r = uG \xor e$ và so
+sánh với $u$.
+
+\begin{table}[H]
+\centering
+\caption{Kết quả giải mã (7,4) theo số bit lỗi $k$ trong một khối (vét cạn $16 \times 128$ mẫu)}
+\label{tab:theosoloi}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Số lỗi $k$} & \textbf{Số mẫu} & \textbf{Hội chứng $= 0$} &
+\textbf{Giải mã đúng}\\ \hline
+0 & 16  & 16  & 16\\
+1 & 112 & 0   & 112\\
+2 & 336 & 0   & 0\\
+3 & 560 & 112 & 0\\
+4 & 560 & 112 & 0\\
+5 & 336 & 0   & 0\\
+6 & 112 & 0   & 0\\
+7 & 16  & 16  & 0\\ \hline
+\textbf{Tổng} & 2048 & 256 & 128\\ \hline
+\end{tabular}
+\end{table}
+
+\canviet{Xác nhận lại bảng bằng chính chương trình của nhóm (số liệu trên đã
+chạy vét cạn với bộ giải mã theo Bảng~\ref{tab:hoichung}). Nhận xét: giải mã
+đúng khi và chỉ khi $k \le 1$; hội chứng bằng 0 với $k \ge 3$ xảy ra đúng khi
+$e$ là một từ mã khác 0 (15 vectơ lỗi, nhân 16 dữ liệu).}
+
+% ---------------------------------------------------------------------
+\section{Mô phỏng chuỗi ký tự đầu -- cuối}
+\label{sec:5.3}
+
+\canviet{Chạy với một hoặc vài chuỗi cụ thể (ví dụ \code{"A"}, một câu tiếng
+Việt có dấu) ở một số mức $p$: in chuỗi gửi, số bit, số khối bị lỗi, số khối
+sửa đúng, chuỗi nhận được. Dán kết quả thật vào khối dưới.}
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\captionof{chuongtrinh}{Kết quả chạy mô phỏng chuỗi ký tự}\label{lst:ketqua53}
+\end{minipage}
+\end{center}
+\begin{Verbatim}
+# Dán nguyên văn đầu ra của chương trình tại đây
+\end{Verbatim}
+
+% ---------------------------------------------------------------------
+\section{Tỉ lệ lỗi bit sau giải mã trên kênh BSC}
+\label{sec:5.4}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả mô phỏng trên kênh BSC}
+\label{tab:ber}
+\begin{tabular}{|c|>{\centering\arraybackslash}p{3.4cm}|>{\centering\arraybackslash}p{3.8cm}|>{\centering\arraybackslash}p{3.8cm}|}
+\hline
+$p$ & \textbf{BER không mã hóa} & \textbf{BER sau giải mã (mô phỏng)} &
+\textbf{Xác suất khối sai (lý thuyết)}\\ \hline
+0{,}01 & & & 0{,}0020\\
+0{,}05 & & & 0{,}0444\\
+0{,}10 & & & 0{,}1497\\ \hline
+\end{tabular}
+\end{table}
+
+Cột cuối tính theo \eqref{eq:pkhoi}:
+$\Pr(\text{khối sai}) = 1 - (1-p)^7 - 7p(1-p)^6$.
+
+\canviet{Điền BER mô phỏng (số khối, số lần lặp, \code{seed}); có thể thêm đồ
+thị BER theo $p$ (thang log). Lưu ý: BER sau giải mã là tỉ lệ bit dữ liệu sai,
+khác với xác suất khối sai ở cột cuối; chỉ dùng cột cuối để đối chiếu xu hướng.}
+
+% ---------------------------------------------------------------------
+\section{Nhận xét}
+\label{sec:5.5}
+
+\canviet{Đối chiếu kết quả thực nghiệm với lý thuyết Chương 1--2: sửa đúng mọi
+lỗi đơn; hai lỗi bị sửa nhầm ở (7,4) nhưng được phát hiện ở (8,4); với $p$
+nhỏ, mã hóa giảm đáng kể tỉ lệ lỗi; với $p$ lớn, lợi ích giảm.}

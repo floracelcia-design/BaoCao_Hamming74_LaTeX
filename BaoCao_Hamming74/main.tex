@@ -1,0 +1,81 @@
+% !TEX program = xelatex
+% =====================================================================
+%  BÁO CÁO BÀI TẬP LỚN ĐẠI SỐ TUYẾN TÍNH (MT1007) — ĐỀ TÀI 10
+%  Mã Hamming (7,4): mô phỏng mã hóa, gây nhiễu, phát hiện và sửa lỗi
+%  cho chuỗi ký tự.   Lớp L06 — Nhóm 10 — HK1/2026-2027
+% ---------------------------------------------------------------------
+%  Biên dịch: XeLaTeX (khuyến nghị) hoặc LuaLaTeX.
+%    - Overleaf: tải file .zip lên (New Project > Upload Project); file
+%      latexmkrc đã đặt sẵn XeLaTeX và -shell-escape. Có thể chọn thêm
+%      Menu > Compiler > XeLaTeX cho chắc.
+%    - Máy cá nhân: latexmk main.tex
+%      (hoặc: xelatex -shell-escape main.tex, chạy hai lần)
+%  -shell-escape + Python Pygments dùng cho minted (tô màu mã nguồn ở
+%  Phụ lục A). Thiếu -shell-escape thì mã nguồn vẫn in, chỉ không tô màu.
+%  pdfLaTeX vẫn chạy được nếu máy có gói vntex (xem config/settings.tex).
+%
+%  Cấu trúc thư mục:
+%    config/settings.tex   gói lệnh, trang, phông, định dạng tiêu đề
+%    config/macros.tex     ký hiệu chuẩn của nhóm (bảng ký hiệu 08/11)
+%    frontmatter/          bìa, danh sách thành viên, tóm tắt, cảm ơn,
+%                          từ viết tắt, yêu cầu đề tài, lời mở đầu
+%    chapters/             chuong1.tex ... chuong6.tex
+%    backmatter/           tài liệu tham khảo, phụ lục A
+%    code/                 mã nguồn Python đưa vào Phụ lục A
+%    images/               logo và hình vẽ
+%
+%  Khung "Nội dung cần viết" (màu xám) chỉ để nhắc việc. Khi nộp bài,
+%  đổi \hienkhungtrue thành \hienkhungfalse ở dưới để ẩn toàn bộ.
+% =====================================================================
+\documentclass[12pt,a4paper,oneside]{report}
+
+\input{config/settings}
+\input{config/macros}
+\usepackage{bookmark}
+
+% Hiện (true) / ẩn (false) các khung nhắc nội dung còn thiếu
+\hienkhungtrue
+
+\begin{document}
+
+% ------------------------- TRANG BÌA ---------------------------------
+\input{frontmatter/bia}
+\input{frontmatter/thanhvien}
+
+% ------------------------- PHẦN ĐẦU (số La Mã) -----------------------
+\pagenumbering{roman}
+\setcounter{page}{1}
+\input{frontmatter/tomtat}
+\input{frontmatter/loicamon}
+
+\tableofcontents
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listoffigures
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\listtablename}
+\listoftables
+
+\input{frontmatter/viettat}
+\input{frontmatter/yeucau}
+\input{frontmatter/loimodau}
+
+% ------------------------- NỘI DUNG CHÍNH ----------------------------
+\cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{chapters/chuong1}
+\input{chapters/chuong2}
+\input{chapters/chuong3}
+\input{chapters/chuong4}
+\input{chapters/chuong5}
+\input{chapters/chuong6}
+
+% ------------------------- PHẦN CUỐI ---------------------------------
+\input{backmatter/tailieu}
+\input{backmatter/phuluc}
+
+\end{document}

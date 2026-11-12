@@ -1,0 +1,654 @@
+% =====================================================================
+%  CHƯƠNG 1. CƠ SỞ LÝ THUYẾT MÃ HAMMING (7,4)
+%  Nội dung: TV2 (Thanh Trúc), bản workspace ngày 11/11/2026 12:52,
+%  đã gồm các chỗ nhóm trưởng sửa (bảng hội chứng, ví dụ r = 1001010,
+%  ma trận H cụ thể, bước 3-4 ở 1.8).
+%  Số liệu (G, H, bảng 16 từ mã, bảng hội chứng) khớp tài liệu
+%  "quy_uoc_chung_dang_he_thong" và đã kiểm tra lại bằng code.
+%  Nhãn \label giữ nguyên để Chương 2-4 dẫn chiếu.
+%  Câu chuyện Hamming 1947 (thay đoạn "Đặt tình huống" của TV2 theo yêu cầu
+%  nhóm trưởng) đã chuyển sang frontmatter/loimodau.tex; ý mã lặp R = 1/3
+%  và R = 4/7 nằm ở đó. Chương này mở bằng lộ trình và hộp quy ước.
+%  Trình bày (11/11/2026): bố cục, danh sách, bảng, khung định lý/ví dụ theo
+%  bộ quy tắc ở config/settings.tex; câu chữ giữ nguyên.
+%  Bổ sung theo review 11/11/2026 (14:50): quy ước h_j viết hàng; hộp quy ước
+%  nêu đủ các chỗ nhắc dạng cổ điển; phép nhân GF(2); tỉ số 1 lỗi/2 lỗi ở 1.1;
+%  bất đẳng thức tam giác và chứng minh Định lý 1.1 ở 1.3; "ê = 0" ở Bước 4.
+% =====================================================================
+\chapter{CƠ SỞ LÝ THUYẾT MÃ HAMMING (7,4)}
+\label{chap:1}
+
+Chương này đi từ bài toán truyền tin có nhiễu (mục~\ref{sec:1.1}), qua trường
+$\GF$ và khoảng cách Hamming (mục~\ref{sec:1.2}--\ref{sec:1.3}), đến việc xây
+dựng mã Hamming (7,4) bằng các ma trận $G$, $H$ và sửa lỗi bằng hội chứng
+(mục~\ref{sec:1.4}--\ref{sec:1.8}). Trước khi bắt đầu, nhóm thống nhất một số
+quy ước dùng xuyên suốt báo cáo.
+
+\begin{quyuoc}[Quy ước dùng trong toàn báo cáo]
+Báo cáo dùng mã Hamming (7,4) ở \emph{dạng hệ thống}: từ mã
+$c = (u_1u_2u_3u_4\,p_1p_2p_3)$, bốn bit đầu là dữ liệu, ba bit sau là bit kiểm
+tra. Các ma trận $G$ và $H$ được xây dựng ở mục~\ref{sec:1.5}
+và~\ref{sec:1.6}; dạng cổ điển (bit kiểm tra ở vị trí $1, 2, 4$) được nhắc ở
+mục~\ref{sec:1.1}, \ref{sec:1.5}, \ref{sec:1.6} và chỉ được trình bày đầy đủ ở
+mục~\ref{sec:2.6}. Các vectơ $u$ (dữ liệu), $c$ (từ mã),
+$r$ (vectơ nhận được), $e$ (vectơ lỗi) và $s$ (hội chứng) đều là
+\emph{vectơ hàng}; cột thứ $j$ của $H$, ký hiệu $h_j$, cũng được viết như vectơ
+hàng (tức $h_j^{\mathsf T}$) khi cộng vào hội chứng. Mã hóa: $c = uG$; hội
+chứng: $s = r\HT$. Mọi phép cộng là
+cộng modulo~2 (XOR), ký hiệu $\xor$. Các bit được đánh số từ $1$, từ trái sang
+phải; trong mã nguồn Python chỉ số bắt đầu từ $0$, nên bit thứ $i$ của báo cáo
+là phần tử $i-1$ của danh sách.
+\end{quyuoc}
+
+% =====================================================================
+\section{Truyền tin có nhiễu và ý tưởng thêm bit dư}
+\label{sec:1.1}
+
+\mucnho{1) Truyền tin có nhiễu}
+\begin{itemize}
+  \item \emph{Khái niệm:} truyền tin có nhiễu là quá trình dịch chuyển thông
+        tin từ điểm nguồn đến điểm nhận qua một kênh truyền mà trong đó chịu
+        sự tác động của các tín hiệu không mong muốn (gọi là \emph{nhiễu}),
+        gây ra hiện tượng sai lệch hoặc suy giảm chất lượng thông tin.
+\end{itemize}
+
+\begin{ketluan}
+Nhiễu có tính ngẫu nhiên. Máy thu không thể biết trước khi nào
+lỗi sẽ xảy ra, chỉ có thể đo lường thông qua xác suất lỗi bit. Khi xác suất
+lỗi $p$ nhỏ, 1 lỗi xảy ra nhiều hơn hẳn 2 lỗi, 3 lỗi. Cụ thể, trong một khối
+$7$ bit, tỉ số giữa xác suất có đúng $1$ lỗi và có đúng $2$ lỗi là
+$\frac{7p(1-p)^6}{21p^2(1-p)^5} = \frac{1-p}{3p}$: khoảng $333$ lần khi
+$p = 0{,}001$, $33$ lần khi $p = 0{,}01$, $6{,}3$ lần khi $p = 0{,}05$, nhưng
+chỉ còn $3$ lần khi $p = 0{,}1$. Vì vậy, khi $p$ đủ nhỏ, ta chỉ cần thiết kế
+mã sửa được vài lỗi là đã đủ hiệu quả, không cần đối phó với mọi trường hợp
+xấu nhất. Thay vì chỉ truyền nguyên vẹn chuỗi dữ liệu gốc, bên phát sẽ
+tính toán và gắn thêm một số bit dư dựa trên một quy tắc toán học định sẵn.
+\end{ketluan}
+
+\mucnho{2) Ý tưởng thêm bit dư}
+\begin{itemize}
+  \item Khi truyền một chuỗi bit qua đường truyền hoặc lưu vào bộ nhớ, nhiễu
+        có thể đảo một số bit từ $0$ thành $1$ hoặc ngược lại. Nếu chỉ gửi
+        đúng các bit dữ liệu, bên nhận không có cách nào biết bit nào đã sai.
+  \item Mã sửa lỗi giải quyết việc này bằng cách thêm vài bit dư. Bên gửi tính
+        các bit dư từ bit dữ liệu theo một quy tắc cố định: dữ liệu gốc $k$
+        bit được bộ mã hóa gắn thêm $r$ bit dư để tạo thành \emph{từ mã} dài
+        $n = k + r$ bit.
+  \item Vai trò của bit dư:
+        \begin{itemize}
+          \item \emph{Phát hiện lỗi:} máy thu tính toán lại chuỗi bit dư dựa
+                trên dữ liệu nhận được theo thuật toán định trước, rồi so
+                sánh với các bit dư được gửi kèm. Nếu hai kết quả khác nhau,
+                chứng tỏ dữ liệu đã bị lỗi trong quá trình truyền.
+          \item \emph{Sửa lỗi trực tiếp:} các bit dư được tính sao cho mỗi vị
+                trí lỗi đơn để lại một dấu hiệu (hội chứng) khác nhau. Nhờ đó,
+                khi chỉ có một bit bị đảo, máy thu xác định được bit nào sai
+                và chỉ việc lật ngược bit đó để khôi phục dữ liệu gốc.
+        \end{itemize}
+\end{itemize}
+
+Trong bản gốc, Hamming đặt bit kiểm tra ở các vị trí lũy thừa của 2
+($1, 2, 4, \dots$). Báo cáo này dùng \emph{dạng hệ thống}, đưa các bit kiểm
+tra về cuối từ mã để thuận tiện cho tính toán ma trận (xem mục~\ref{sec:1.5}
+và mục~\ref{sec:2.6}).
+
+\mucnho{3) Giới thiệu về kênh đối xứng nhị phân (BSC) và xác suất lỗi}
+\begin{itemize}
+  \item \emph{Đặc điểm của kênh đối xứng nhị phân:} mô hình BSC được định
+        nghĩa dựa trên ba yếu tố:
+        \begin{itemize}
+          \item \emph{Tín hiệu vào/ra nhị phân:} kênh truyền chỉ xử lý hai ký
+                tự là $0$ và $1$. Đầu vào $X$ và đầu ra $Y$ đều thuộc tập
+                $\{0,1\}$.
+          \item \emph{Tính chất đối xứng:} xác suất một bit $0$ bị biến đổi
+                thành $1$ bằng đúng xác suất một bit $1$ bị biến đổi thành
+                $0$.
+          \item \emph{Tính không bộ nhớ:} nhiễu tác động lên mỗi bit một cách
+                độc lập. Việc bit này bị lỗi không ảnh hưởng đến xác suất lỗi
+                của bit tiếp theo.
+        \end{itemize}
+  \Needspace{9\baselineskip}
+  \item Gọi $p$ là xác suất lỗi bit, với điều kiện $0 \le p \le 0{,}5$. Khả
+        năng truyền tin được mô tả qua các xác suất điều kiện sau:
+\end{itemize}
+\begin{center}\small\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|l|l|l|}
+\hline
+ & \textbf{Xác suất} & \textbf{Ý nghĩa}\\ \hline
+\multirow{2}{*}{Truyền sai (có lỗi)}
+  & $\Pr(Y=1 \mid X=0) = p$   & phát $0$ nhưng nhận $1$\\
+  & $\Pr(Y=0 \mid X=1) = p$   & phát $1$ nhưng nhận $0$\\ \hline
+\multirow{2}{*}{Truyền đúng (không lỗi)}
+  & $\Pr(Y=0 \mid X=0) = 1-p$ & phát $0$ và nhận đúng $0$\\
+  & $\Pr(Y=1 \mid X=1) = 1-p$ & phát $1$ và nhận đúng $1$\\ \hline
+\end{tabular}
+\end{center}
+
+\begin{luuy}
+Nếu $p > 0{,}5$ thì chỉ cần đảo mọi bit nhận được; khi
+đó mỗi bit sai với xác suất $p' = 1 - p < 0{,}5$, tức ta có một kênh BSC tốt
+hơn. Vì vậy chỉ cần xét $0 \le p \le 0{,}5$ (BSC sẽ được dùng lại ở
+Chương~\ref{chap:5} để tính BER).
+\end{luuy}
+
+% =====================================================================
+\section{Trường \texorpdfstring{$\mathrm{GF}(2)$}{GF(2)} và mã khối tuyến tính \texorpdfstring{$C(n,k)$}{C(n,k)}}
+\label{sec:1.2}
+
+\mucnho{1) Trường $\GF$}
+\begin{itemize}
+  \item \emph{Định nghĩa:} một \emph{trường} là một tập hợp kèm theo hai phép
+        toán (cộng và nhân) thỏa mãn các tính chất cấu trúc đại số quen thuộc
+        (như tính kết hợp, giao hoán, phân phối, có phần tử nghịch đảo cho
+        phép nhân khác không, \dots). Trường Galois 2 phần tử, ký hiệu là
+        $\GF$, là trường nhỏ nhất chỉ chứa đúng 2 phần tử: $\{0,1\}$.
+  \item Phép cộng trong $\GF$ là phép cộng số học modulo~2, hay phép XOR,
+        ký hiệu $\xor$:
+\[
+  0 \xor 0 = 0,\qquad 0 \xor 1 = 1,\qquad 1 \xor 0 = 1,\qquad 1 \xor 1 = 0 ,
+\]
+trong đó $1 \xor 1 = 0$ vì trong $\GF$, $1 + 1 = 2 \equiv 0 \pmod 2$. Chính
+vì đặc tính này, trong đại số tuyến tính trên trường $\GF$, phép XOR đóng vai
+trò là phép cộng vectơ hoặc cộng các thành phần của ma trận.
+  \item Phép nhân trong $\GF$ là phép nhân số học thông thường (tương đương
+        phép AND):
+\[
+  0 \cdot 0 = 0,\qquad 0 \cdot 1 = 0,\qquad 1 \cdot 0 = 0,\qquad 1 \cdot 1 = 1 .
+\]
+Tích của hai ma trận trên $\GF$ được tính như thường lệ, trong đó các tích dùng
+phép nhân này còn các tổng dùng phép XOR.
+  \item Từ trường $\GF$, ta xây dựng không gian vectơ $n$ chiều $\GFn{n}$ gồm
+        tất cả các vectơ có độ dài $n$ với các thành phần thuộc $\GF$:
+\[
+  \GFn{n} = \{\, (x_1, x_2, \dots, x_n) \mid x_i \in \{0,1\} \,\}.
+\]
+Phép toán trên không gian vectơ này gồm phép cộng vectơ (từng thành phần thực
+hiện phép XOR) và phép nhân vô hướng với phần tử trong $\GF$ (nhân với $0$
+hoặc $1$).
+\end{itemize}
+
+\mucnho{2) Mã khối tuyến tính $C(n,k)$}
+\begin{itemize}
+  \item Mã khối tuyến tính $C(n,k)$ được định nghĩa là một không gian con
+        tuyến tính $C$ có số chiều $k$ của không gian vectơ $\GFn{n}$ (với
+        $k < n$).
+  \item Vì $C$ là một không gian con của $\GFn{n}$:
+        \begin{itemize}
+          \item vectơ không $0 \in C$;
+          \item tổng của hai từ mã bất kỳ vẫn thuộc $C$ (tính đóng dưới phép
+                cộng/XOR);
+          \item tích của từ mã với một vô hướng trong $\GF$ vẫn thuộc $C$.
+        \end{itemize}
+\end{itemize}
+
+\mucnho{3) Vectơ dữ liệu, từ mã và ma trận tạo mã}
+\begin{itemize}
+  \item \emph{Vectơ dữ liệu:} là chuỗi thông tin gốc cần truyền đi, có độ dài
+        là $k$. Ta coi $u$ là một vectơ thuộc không gian vectơ $\GFn{k}$:
+        $u = (u_1, u_2, \dots, u_k) \in \GFn{k}$.
+  \item \emph{Từ mã:} là chuỗi dữ liệu sau khi đã được mã hóa bằng cách thêm
+        các bit kiểm tra lỗi, có độ dài là $n$ ($n > k$). Từ mã $c$ là một
+        phần tử thuộc không gian con $C$:
+        $c = (c_1, c_2, \dots, c_n) \in C \subset \GFn{n}$.
+  \item Dạng tổng quát của ma trận tạo mã $G$ (kích thước $k \times n$):
+\[
+  G = \begin{bmatrix}
+        g_{11} & g_{12} & \cdots & g_{1n}\\
+        g_{21} & g_{22} & \cdots & g_{2n}\\
+        \vdots & \vdots & \ddots & \vdots\\
+        g_{k1} & g_{k2} & \cdots & g_{kn}
+      \end{bmatrix}.
+\]
+\end{itemize}
+
+% =====================================================================
+\section{Khoảng cách Hamming và khả năng phát hiện, sửa lỗi}
+\label{sec:1.3}
+
+\mucnho{1) Trọng số Hamming}
+\begin{itemize}
+  \item \emph{Trọng số Hamming} của một vectơ (hoặc một chuỗi bit) là số
+        lượng các phần tử khác không xuất hiện trong vectơ đó.
+  \item Đối với trường $\GF$ (chỉ gồm các bit $0$ và $1$), trọng số Hamming của
+        một vectơ đơn thuần là tổng số lượng các bit $1$ có trong vectơ đó.
+  \item Ký hiệu: trọng số Hamming của vectơ $x$ được ký hiệu là $\wt{x}$.
+\end{itemize}
+
+\begin{vidu}
+Cho vectơ $x = (1,0,1,1,0)$: có ba bit $1$, vậy trọng số Hamming
+$\wt{x} = 3$. Cho vectơ $y = (0,0,0,0)$: không có bit $1$ nào, vậy
+$\wt{y} = 0$ (đây là vectơ không).
+\end{vidu}
+
+\mucnho{2) Khoảng cách Hamming}
+
+Cho hai vectơ $x = (x_1, x_2, \dots, x_n)$ và $y = (y_1, y_2, \dots, y_n)$ có
+cùng độ dài $n$ thuộc $\GFn{n}$. \emph{Khoảng cách Hamming} giữa $x$ và $y$, ký
+hiệu $\dist{x}{y}$, được định nghĩa là số lượng vị trí (tọa độ) mà tại đó các
+thành phần tương ứng của hai vectơ khác nhau. Vì tại mỗi vị trí, hai bit khác
+nhau khi và chỉ khi tổng $\xor$ của chúng bằng $1$, nên
+$\dist{x}{y} = \wt{x \xor y}$.
+
+\Needspace{10\baselineskip}
+\begin{vidu}
+Cho hai chuỗi bit độ dài 7: $x = 1011010$ và $y = 1110010$. So sánh từng vị
+trí:
+\begin{center}\small
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+\textbf{Vị trí} & 1 & 2 & 3 & 4 & 5 & 6 & 7\\ \hline
+$x$ & 1 & 0 & 1 & 1 & 0 & 1 & 0\\
+$y$ & 1 & 1 & 1 & 0 & 0 & 1 & 0\\ \hline
+So sánh & giống & \textbf{khác} & giống & \textbf{khác} & giống & giống & giống\\ \hline
+\end{tabular}
+\end{center}
+Có tổng cộng 2 vị trí khác nhau (vị trí 2 và vị trí 4), vậy khoảng cách
+Hamming $\dist{x}{y} = 2$.
+\end{vidu}
+
+\emph{Bất đẳng thức tam giác.} Với mọi $x, y, z \in \GFn{n}$,
+$\dist{x}{z} \le \dist{x}{y} + \dist{y}{z}$. Thật vậy,
+$x \xor z = (x \xor y) \xor (y \xor z)$ nên
+$\dist{x}{z} = \wt{(x \xor y) \xor (y \xor z)}$; mà tại mỗi vị trí mà
+$a \xor b$ có bit $1$ thì $a$ hoặc $b$ có bit $1$ tại vị trí đó, nên
+$\wt{a \xor b} \le \wt{a} + \wt{b}$.
+
+\mucnho{3) Khả năng phát hiện và sửa chữa lỗi}
+
+Cho một mã khối $C$ (tập hợp tất cả các từ mã hợp lệ). \emph{Khoảng cách tối
+thiểu} của mã, ký hiệu $\dmin$, được định nghĩa là khoảng cách Hamming nhỏ nhất
+giữa mọi cặp từ mã phân biệt bất kỳ nằm trong $C$:
+\[
+  \dmin = \min_{c_i \neq c_j} \dist{c_i}{c_j},
+  \qquad c_i, c_j \in C .
+\]
+
+\begin{dinhly}[Khả năng phát hiện và sửa lỗi]\label{dl:phathien-sua}
+Mã có khoảng cách tối thiểu $\dmin$
+\begin{enumerate}[label=(\alph*)]
+  \item phát hiện được mọi mẫu lỗi có trọng số từ $1$ đến $\dmin - 1$, tức
+        phát hiện được tối đa $\dmin - 1$ bit lỗi;
+  \item sửa được mọi mẫu lỗi có trọng số không quá
+        $t = \left\lfloor \dfrac{\dmin - 1}{2} \right\rfloor$, tức sửa được tối
+        đa $t$ bit lỗi.
+\end{enumerate}
+\end{dinhly}
+\begin{proof}
+(a) Nếu $r = c \xor e$ với $1 \le \wt{e} \le \dmin - 1$ thì
+$r \neq c$ (vì $e \neq 0$). Nếu $r$ cũng là một từ mã thì $r$ và $c$ là hai từ
+mã phân biệt với $\dist{c}{r} = \wt{e} < \dmin$, trái với định nghĩa của
+$\dmin$. Vậy $r$ không là từ mã và lỗi được phát hiện.
+
+(b) Giả sử $\wt{e} \le t$, tức $\dist{r}{c} \le t$. Vì
+$t = \lfloor (\dmin - 1)/2 \rfloor$ nên $2t + 1 \le \dmin$. Với mọi từ mã
+$c' \neq c$, theo bất đẳng thức tam giác,
+$\dist{r}{c'} \ge \dist{c}{c'} - \dist{r}{c} \ge \dmin - t \ge t + 1
+> \dist{r}{c}$. Vậy $c$ là từ mã gần $r$ nhất và là duy nhất, nên bộ giải mã
+chọn từ mã gần nhất sẽ khôi phục đúng $c$.
+\end{proof}
+
+\mucphu{Ý nghĩa của khả năng phát hiện lỗi (a)}
+\begin{itemize}
+  \item \emph{Bản chất từ mã:} trong không gian vectơ $\GFn{n}$, tập hợp các
+        từ mã hợp lệ $C$ là những điểm ``cô lập'' nằm cách nhau một khoảng
+        cách tối thiểu là $\dmin$.
+  \item \emph{Điều gì xảy ra khi có lỗi?} Khi một từ mã $c$ được gửi đi, do
+        nhiễu kênh truyền, nó bị cộng thêm một vectơ lỗi $e$ (với trọng số
+        $1 \le \wt{e} \le \dmin - 1$), biến thành vectơ nhận được
+        $r = c \xor e$.
+  \item \emph{Tại sao phát hiện được?} Vì số bit lỗi ít hơn khoảng cách tối
+        thiểu giữa các từ mã ($\wt{e} < \dmin$), vectơ $r$ nhận được chắc chắn
+        không thể rơi vào bất kỳ từ mã hợp lệ nào khác.
+  \item \emph{Kết luận:} hệ thống đối chiếu vectơ $r$ với tập hợp từ mã và thấy
+        nó ``lơ lửng'', không khớp với bất kỳ từ mã chuẩn nào, nên kết luận:
+        ``Đã xảy ra lỗi!'' (dù chưa biết chính xác lỗi ở vị trí nào để sửa).
+\end{itemize}
+
+\mucphu{Ý nghĩa của khả năng sửa lỗi (b)}
+Hãy tưởng tượng mỗi từ mã
+hợp lệ là tâm của một ``quả cầu'' có bán kính là $t$ trong không gian vectơ.
+\begin{itemize}
+  \item \emph{Nguyên tắc không chồng lấn:} để hệ thống giải mã một cách duy
+        nhất (không bị nhầm lẫn), các quả cầu bao quanh các từ mã khác nhau
+        tuyệt đối không được đè lên nhau. Khoảng cách giữa tâm của hai từ mã
+        phân biệt bất kỳ ít nhất là $\dmin$. Để hai quả cầu bán kính $t$ quanh
+        hai từ mã không có điểm chung, cần
+        $2t + 1 \le \dmin$, tức $t \le \dfrac{\dmin - 1}{2}$.
+  \item \emph{Cơ chế sửa lỗi:} khi phát sinh không quá $t$ bit lỗi, vectơ nhận
+        được $r$ sẽ rơi lệch khỏi tâm nhưng vẫn nằm gọn bên trong vùng quả cầu
+        của từ mã gốc $c$. Thuật toán giải mã tìm từ mã hợp lệ nằm gần $r$
+        nhất (trong cùng quả cầu) và đưa ngược vectơ $r$ về tâm từ mã ban đầu
+        $c$.
+  \item \emph{Kết luận:} hệ thống không những biết có lỗi mà còn tự động khôi
+        phục lại chính xác dữ liệu gốc như chưa từng bị nhiễu.
+\end{itemize}
+
+\begin{luuy}
+Với cùng một $\dmin$, mã không vừa sửa tối đa vừa phát
+hiện tối đa cùng lúc. Ví dụ $\dmin = 3$ thì hoặc sửa $1$ lỗi, hoặc phát hiện
+$2$ lỗi.
+\end{luuy}
+
+\begin{menhde}\label{md:dmin-trongso}
+Với mã tuyến tính $C$, $\dmin = \min\{\wt{c} : c \in C,\ c \neq 0\}$, tức
+$\dmin$ bằng trọng số nhỏ nhất của các từ mã khác $0$.
+\end{menhde}
+\begin{proof}
+Với hai từ mã phân biệt $a, b \in C$ ta có $\dist{a}{b} = \wt{a \xor b}$ và
+$a \xor b \in C$, $a \xor b \neq 0$. Ngược lại, mỗi từ mã $c \neq 0$ cho
+$\wt{c} = \dist{c}{0}$ với $0 \in C$. Hai tập giá trị trùng nhau nên hai giá
+trị nhỏ nhất bằng nhau.
+\end{proof}
+
+% =====================================================================
+\section{Mã Hamming (7,4)}
+\label{sec:1.4}
+
+\begin{itemize}
+  \item \emph{Định nghĩa:} mã Hamming $(7,4)$ là một mã khối tuyến tính nhận
+        vào một khối $4$ bit dữ liệu thông tin gốc và mã hóa chúng thành một từ
+        mã có độ dài $7$ bit bằng cách bổ sung thêm $3$ bit kiểm tra lỗi.
+  \item Ký hiệu $C(7,4)$ biểu thị các thông số cốt lõi:
+        \begin{itemize}
+          \item $n = 7$: độ dài tổng cộng của từ mã (số bit truyền đi trên
+                kênh);
+          \item $k = 4$: độ dài của vectơ dữ liệu (số bit thông tin thực tế);
+          \item $n - k = 3$: số lượng bit kiểm tra;
+          \item tốc độ mã $R = \dfrac{k}{n} = \dfrac{4}{7} \approx 0{,}571$
+                (tỉ lệ thông tin hữu ích trên tổng dung lượng truyền).
+        \end{itemize}
+\end{itemize}
+
+Theo \emph{dạng hệ thống}, từ mã gồm bốn bit dữ liệu đứng trước và ba bit kiểm
+tra đứng sau,
+\begin{equation}
+  c = (c_1\,c_2\,\dots\,c_7) = (u_1\,u_2\,u_3\,u_4\,p_1\,p_2\,p_3),
+\end{equation}
+trong đó các bit kiểm tra được tính (cộng modulo~2) bởi
+\begin{equation}\label{eq:bitkiemtra}
+  p_1 = u_1 \xor u_2 \xor u_4,\qquad
+  p_2 = u_1 \xor u_3 \xor u_4,\qquad
+  p_3 = u_2 \xor u_3 \xor u_4 .
+\end{equation}
+
+% =====================================================================
+\section{Ma trận tạo mã \texorpdfstring{$G$}{G}}
+\label{sec:1.5}
+
+\begin{itemize}
+  \item Kích thước: $k \times n$ (với $k$ là số bit dữ liệu, $n$ là độ dài từ
+        mã).
+  \item Không gian con mã $C$ là một không gian vectơ con $k$ chiều nằm trong
+        không gian tổng quát $\GFn{n}$. $k$ hàng của ma trận $G$ là một hệ $k$
+        vectơ cơ sở độc lập tuyến tính sinh ra $C$, tức mọi từ mã là tổ hợp
+        tuyến tính của các hàng của $G$. Ở dạng chuẩn (dạng hệ thống), $G$ viết
+        thành
+        \[
+          G = [\,I_k \mid P\,],
+        \]
+        trong đó $I_k$ là ma trận đơn vị kích thước $k \times k$ (giúp giữ
+        nguyên vẹn $k$ bit dữ liệu gốc ở đầu từ mã), và $P$ là ma trận phần
+        kiểm tra (parity), kích thước $k \times (n-k)$, chứa các quy tắc phối
+        hợp bit để sinh ra các bit kiểm tra.
+  \item Quá trình mã hóa là một ánh xạ tuyến tính từ không gian $\GFn{k}$ sang
+        $\GFn{n}$:
+        \begin{equation}\label{eq:mahoa}
+          c = u G .
+        \end{equation}
+  \item Để thuận tiện cho việc trích xuất dữ liệu gốc, các bit được sắp xếp
+        sao cho dữ liệu đứng trước, kiểm tra đứng sau. Trong từ mã 7 bit
+        $c = (c_1, c_2, \dots, c_7)$:
+        \begin{itemize}
+          \item vị trí từ $1$ đến $4$ ($c_1, c_2, c_3, c_4$) là $4$ bit dữ liệu
+                gốc $u = (u_1, u_2, u_3, u_4)$. Khi nhận được từ mã, ta chỉ
+                cần cắt $4$ bit đầu tiên là thu lại ngay dữ liệu ban đầu mà
+                không cần giải mã phức tạp;
+          \item vị trí từ $5$ đến $7$ ($c_5, c_6, c_7$) là $3$ bit kiểm tra
+                ($p_1, p_2, p_3$) được sinh ra thông qua phép nhân ma trận
+                $uG$.
+        \end{itemize}
+\end{itemize}
+
+Cách sắp xếp này tương đương với Hamming cổ điển, chỉ khác nhau ở thứ tự các
+cột; để dễ trình bày, báo cáo dùng dạng hệ thống (dữ liệu trước, kiểm tra
+sau). Nếu $c_{\text{cổ điển}} = (c_1, \dots, c_7)$ thì
+\begin{equation}\label{eq:hoanvi-1}
+  c_{\text{hệ thống}} = (c_3,\,c_5,\,c_6,\,c_7,\,c_1,\,c_2,\,c_4);
+\end{equation}
+xem mục~\ref{sec:2.6}.
+
+\begin{vidu}\label{vd:G}
+Với mã Hamming $(7,4)$, ma trận phần kiểm tra $P$ có bốn hàng $110$, $101$,
+$011$, $111$ và ma trận tạo mã là
+\begin{equation}\label{eq:G}
+  P = \MatP, \qquad
+  G = [\,I_4 \mid P\,] = \MatG .
+\end{equation}
+Theo dạng hệ thống, $4$ hàng của $G$ đóng vai trò là các vectơ cơ sở, trong đó
+$4$ cột đầu là ma trận đơn vị $I_4$ (giữ nguyên dữ liệu) và $3$ cột sau là ma
+trận phần kiểm tra $P$ (tạo ra các bit kiểm tra bằng phép XOR). Lập vectơ hàng
+$u$ có $4$ bit dữ liệu $u = (1\ 0\ 1\ 1)$ và thực hiện phép nhân
+$c = uG$:
+\[
+  c = (1\ 0\ 1\ 1)\cdot\MatG = (1\ 0\ 1\ 1\ 0\ 1\ 0).
+\]
+Cách tính thực chất là lấy tổng XOR các hàng của $G$ tương ứng với các vị trí
+có số $1$ trong $u$ (các hàng $1$, $3$ và $4$):
+\[
+  c = \text{Hàng}_1 \xor \text{Hàng}_3 \xor \text{Hàng}_4
+    = 1000110 \xor 0010011 \xor 0001111 = 1011010 .
+\]
+\begin{itemize}
+  \item $4$ bit đầu tiên (dữ liệu gốc) chính là $u$, được giữ nguyên nhờ ma
+        trận đơn vị $I_4$: $c_{1 \to 4} = (1,0,1,1)$.
+  \item $3$ bit sau (bit kiểm tra $p_1, p_2, p_3$) tính theo
+        \eqref{eq:bitkiemtra}:
+        \begin{align*}
+          \text{vị trí 5:}\quad p_1 &= u_1 \xor u_2 \xor u_4 = 1 \xor 0 \xor 1 = 0,\\
+          \text{vị trí 6:}\quad p_2 &= u_1 \xor u_3 \xor u_4 = 1 \xor 1 \xor 1 = 1,\\
+          \text{vị trí 7:}\quad p_3 &= u_2 \xor u_3 \xor u_4 = 0 \xor 1 \xor 1 = 0 .
+        \end{align*}
+        Phần kiểm tra là $(0,1,0)$.
+\end{itemize}
+Vậy từ mã hoàn chỉnh truyền đi là $c = (1,0,1,1,0,1,0)$, trong đó $(1,0,1,1)$
+là $4$ bit dữ liệu và $(0,1,0)$ là $3$ bit kiểm tra.
+\end{vidu}
+
+% =====================================================================
+\section{Ma trận kiểm tra \texorpdfstring{$H$}{H}}
+\label{sec:1.6}
+
+\begin{itemize}
+  \item Kích thước: $(n-k) \times n$ (với $n-k$ là số lượng bit kiểm tra).
+  \item \emph{Bản chất:} nếu các hàng của $G$ sinh ra không gian mã $C$ thì
+        $H$ cho các phương trình ràng buộc mà mọi từ mã phải thỏa. Nói cách
+        khác, $C$ chính là không gian vô hiệu của $H$:
+        \begin{equation}\label{eq:C-ker}
+          C = \{\, c \in \GFn{n} : c\HT = 0 \,\}
+        \end{equation}
+        (chứng minh ở mục~\ref{sec:2.2}).
+  \item Nếu ma trận tạo mã có dạng $G = [\,I_k \mid P\,]$ thì ma trận kiểm tra
+        tương ứng $H$ có dạng chuẩn
+        \[
+          H = [\,\PT \mid I_{n-k}\,],
+        \]
+        với $\PT$ là ma trận chuyển vị của $P$ và $I_{n-k}$ là ma trận đơn vị
+        kích thước $(n-k) \times (n-k)$. (Tổng quát $H = [\,-\PT \mid I_{n-k}\,]$;
+        trên $\GF$ thì $-\PT = \PT$.)
+\end{itemize}
+
+Với mã Hamming $(7,4)$, $P$ có bốn hàng $110$, $101$, $011$, $111$
+(mục~\ref{sec:1.5}), nên
+\begin{equation}\label{eq:H}
+  H = [\,\PT \mid I_3\,] = \MatH .
+\end{equation}
+Ký hiệu $h_j$ là cột thứ $j$ của $H$, viết dưới dạng hàng ba thành phần (để cộng
+được với hội chứng, vốn là vectơ hàng):
+\begin{gather*}
+  h_1 = \vt{1,1,0},\quad h_2 = \vt{1,0,1},\quad h_3 = \vt{0,1,1},\quad
+  h_4 = \vt{1,1,1},\\
+  h_5 = \vt{1,0,0},\quad h_6 = \vt{0,1,0},\quad h_7 = \vt{0,0,1}.
+\end{gather*}
+Bảy cột của $H$ là bảy vectơ khác $0$, đôi một khác nhau của $\GFn{3}$ (lý do
+xem mục~\ref{sec:2.3}).
+
+\begin{itemize}
+  \item \emph{Vai trò trong giải mã và phát hiện lỗi:}
+        \begin{itemize}
+          \item \emph{Kiểm tra tính hợp lệ:} mọi từ mã chuẩn $c$ khi nhân với
+                chuyển vị của $H$ phải triệt tiêu hoàn toàn thành vectơ
+                không: $c\HT = 0$.
+          \item \emph{Tính hội chứng:} khi nhận được vectơ $r$ (có thể bị
+                lỗi), hệ thống tính vectơ $s = r\HT$, gọi là \emph{hội chứng}
+                (syndrome). Vì $r\HT$ là tổng các hàng của $\HT$ ứng với các
+                vị trí $r_j = 1$, tức tổng các cột $h_j$ của $H$ tại các vị
+                trí đó:
+                \[
+                  s = r\HT = r_1 h_1 \xor r_2 h_2 \xor \dots \xor r_7 h_7 .
+                \]
+        \end{itemize}
+\end{itemize}
+
+Bảng~\ref{tab:hoichung} cho \emph{hội chứng $\to$ vị trí bit lỗi}: bảy cột của
+$H$ chính là bảy hội chứng khác nhau, tương ứng với bảy vị trí.
+
+\begin{table}[H]
+\centering\small\renewcommand{\arraystretch}{1.1}
+\caption{Bảng hội chứng và vị trí bit lỗi (giả thiết tối đa một lỗi)}
+\label{tab:hoichung}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Hội chứng} $s = (s_1, s_2, s_3)$ & \textbf{Cột của $H$} &
+\textbf{Vị trí bit lỗi}\\ \hline
+$(0,0,0)$ & -- & không có lỗi (không sửa)\\ \hline
+$(1,1,0)$ & $h_1$ & vị trí 1\\ \hline
+$(1,0,1)$ & $h_2$ & vị trí 2\\ \hline
+$(0,1,1)$ & $h_3$ & vị trí 3\\ \hline
+$(1,1,1)$ & $h_4$ & vị trí 4\\ \hline
+$(1,0,0)$ & $h_5$ & vị trí 5\\ \hline
+$(0,1,0)$ & $h_6$ & vị trí 6\\ \hline
+$(0,0,1)$ & $h_7$ & vị trí 7\\ \hline
+\end{tabular}
+\end{table}
+
+Ở dạng hệ thống, hội chứng không đọc ra số thứ tự vị trí mà phải tra bảng;
+dạng cổ điển, nơi hội chứng chính là số thứ tự vị trí, được trình bày ở
+mục~\ref{sec:2.6}.
+
+\begin{vidu}\label{vd:lat-bit-3}
+Lật bit thứ $3$ của $1011010$ thành $1001010$, tính hội chứng, tìm ra vị trí
+$3$ rồi sửa lại. Thay $r = (1,0,0,1,0,1,0)$ vào công thức $s = r\HT$:
+\[
+  s = 1\cdot h_1 \xor 0\cdot h_2 \xor 0\cdot h_3 \xor 1\cdot h_4
+      \xor 0\cdot h_5 \xor 1\cdot h_6 \xor 0\cdot h_7 .
+\]
+Lấy tổng các cột tại vị trí có bit $1$ trong $r$ (vị trí $1$, $4$, $6$):
+\[
+  s = h_1 \xor h_4 \xor h_6
+    = (1,1,0) \xor (1,1,1) \xor (0,1,0)
+    = (1 \xor 1 \xor 0,\ 1 \xor 1 \xor 1,\ 0 \xor 1 \xor 0)
+    = (0,1,1).
+\]
+Vì $s \neq 0$ nên đã phát hiện có lỗi. Tra Bảng~\ref{tab:hoichung}: $(0,1,1)$
+trùng cột thứ $3$ của $H$, nên với giả thiết chỉ có một lỗi, bit sai nằm ở vị
+trí $3$. Đảo bit tại vị trí thứ $3$ của $r = (1,0,0,1,0,1,0)$ (từ $0$ thành
+$1$) được $(1,0,1,1,0,1,0)$. Kết luận: chuỗi từ mã đúng sau khi sửa lỗi là
+$1011010$.
+\end{vidu}
+
+\mucnho{Mối liên hệ giữa $H$ và $G$}
+Dưới góc độ đại số tuyến tính,
+tính chất quan trọng nhất liên kết hai ma trận này là \emph{tính trực giao}:
+\begin{equation}\label{eq:GHT}
+  G\HT = 0 \qquad (\text{hoặc } H G^{\mathsf{T}} = 0),
+\end{equation}
+được chứng minh ở Mệnh đề~\ref{md:GHT} (mục~\ref{sec:2.2}).
+
+% =====================================================================
+\section{Bảng 16 từ mã}
+\label{sec:1.7}
+
+Vì mã Hamming $(7,4)$ có độ dài khối dữ liệu $k = 4$, nên tổng số các chuỗi dữ
+liệu khác nhau có thể tạo ra là $2^4 = 16$ trường hợp (từ $0000$ đến $1111$).
+Ứng dụng công thức mã hóa $c = uG$ (với ma trận tạo mã $G$ ở dạng hệ thống), ta
+thu được bảng toàn bộ $16$ từ mã hợp lệ của mã Hamming $(7,4)$ như
+Bảng~\ref{tab:16tuma}. Cột ``Từ mã'' ghi $4$ bit dữ liệu, một khoảng trống, rồi
+$3$ bit kiểm tra.
+
+\begin{table}[H]
+\centering\small\renewcommand{\arraystretch}{1.1}
+\caption{16 từ mã của mã Hamming (7,4) dạng hệ thống}
+\label{tab:16tuma}
+\setlength{\tabcolsep}{4pt}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\begin{tabular}{|C{0.9cm}|C{1.9cm}|C{2.2cm}|C{2.2cm}||C{0.9cm}|C{1.9cm}|C{2.2cm}|C{2.2cm}|}
+\hline
+\textbf{STT} & \textbf{Vectơ dữ liệu} $u$ & \textbf{Từ mã} $c = uG$ & \textbf{Trọng số Hamming} $\wt{c}$ &
+\textbf{STT} & \textbf{Vectơ dữ liệu} $u$ & \textbf{Từ mã} $c = uG$ & \textbf{Trọng số Hamming} $\wt{c}$\\ \hline
+1 & 0000 & 0000\,000 & 0 & 9 & 1000 & 1000\,110 & 3\\ \hline
+2 & 0001 & 0001\,111 & 4 & 10 & 1001 & 1001\,001 & 3\\ \hline
+3 & 0010 & 0010\,011 & 3 & 11 & 1010 & 1010\,101 & 4\\ \hline
+4 & 0011 & 0011\,100 & 3 & 12 & 1011 & 1011\,010 & 4\\ \hline
+5 & 0100 & 0100\,101 & 3 & 13 & 1100 & 1100\,011 & 4\\ \hline
+6 & 0101 & 0101\,010 & 3 & 14 & 1101 & 1101\,100 & 4\\ \hline
+7 & 0110 & 0110\,110 & 4 & 15 & 1110 & 1110\,000 & 3\\ \hline
+8 & 0111 & 0111\,001 & 4 & 16 & 1111 & 1111\,111 & 7\\ \hline
+\end{tabular}
+\end{table}
+
+Phân bố trọng số: một từ mã trọng số $0$, bảy từ mã trọng số $3$, bảy từ mã
+trọng số $4$ và một từ mã trọng số $7$. Theo Mệnh đề~\ref{md:dmin-trongso},
+trọng số nhỏ nhất khác $0$ là $3$, nên $\dmin = 3$ (kiểm tra trực tiếp trên
+bảng; chứng minh không cần liệt kê ở mục~\ref{sec:2.4}).
+
+% =====================================================================
+\section{Phát hiện và sửa lỗi bằng hội chứng}
+\label{sec:1.8}
+
+\mucnho{Khái niệm}
+Khi một từ mã $c$ được truyền đi qua kênh nhiễu, nó
+bị tác động bởi một vectơ lỗi (error vector) ký hiệu là $e$. Vectơ nhận được
+(ký hiệu là $r$) là tổng của từ mã và vectơ lỗi (thực hiện qua phép XOR):
+\[
+  r = c \xor e .
+\]
+Vectơ hội chứng $s$ được định nghĩa là tích giữa vectơ nhận được $r$ và chuyển
+vị của ma trận kiểm tra $\HT$:
+\[
+  s = (s_1\,s_2\,s_3) = r\HT .
+\]
+Dưới lăng kính đại số tuyến tính, mọi từ mã hợp lệ $c$ đều thỏa mãn phương
+trình thuần nhất $c\HT = 0$. Khi bên nhận tính hội chứng $s$ từ vectơ bị nhiễu
+$r$, áp dụng tính chất phân phối của phép nhân ma trận:
+\begin{equation}\label{eq:hoichung}
+  s = r\HT = (c \xor e)\HT = c\HT \xor e\HT = 0 \xor e\HT = e\HT .
+\end{equation}
+Vậy hội chứng chỉ phụ thuộc vectơ lỗi, không phụ thuộc từ mã đã gửi. Nếu chỉ
+có một lỗi ở vị trí $j$ thì $e\HT$ là hàng thứ $j$ của $\HT$, tức $s = h_j$.
+
+\mucnho{Quy trình 4 bước phát hiện và sửa lỗi bằng hội chứng}
+\begin{enumerate}[label=\textbf{Bước~\arabic*},leftmargin=2.3cm,labelwidth=1.7cm,labelsep=0.6em,align=left]
+  \item \textbf{(Nhận dữ liệu):} phía thu nhận được vectơ $r$ từ kênh
+        truyền.
+  \item \textbf{(Tính hội chứng):} tính $s = r\HT$.
+  \item \textbf{(Kiểm tra và phát hiện lỗi):}
+        \begin{itemize}
+          \item Nếu $s = 0$: $r$ là một từ mã. Bộ giải mã chấp nhận $r$ và lấy
+                $4$ bit đầu làm dữ liệu. Kết luận này đúng khi không có lỗi;
+                nếu mẫu lỗi trùng một từ mã khác $0$ (cần ít nhất $3$ bit sai)
+                thì lỗi không được phát hiện.
+          \item Nếu $s \neq 0$: $r$ không phải từ mã, tức đã phát hiện có lỗi.
+                Với giả thiết chỉ có đúng một lỗi tại vị trí $i$, vectơ lỗi
+                $e$ chỉ có bit $1$ ở vị trí $i$ nên $s = e\HT$ chính là cột $i$
+                của $H$; ta lật bit $i$. Nếu thực tế có từ hai lỗi trở lên thì
+                việc lật này luôn cho kết quả sai (bị sửa nhầm thành một từ mã
+                khác). Ví dụ: sai bit $1$ và bit $2$ của $1011010$ cho
+                $r = 0111010$, $s = h_1 \xor h_2 = (0,1,1) = h_3$, bộ giải mã
+                lật bit $3$ thành $0101010$, là từ mã của $u = 0101$.
+        \end{itemize}
+  \item \textbf{(Sửa lỗi):} gọi $\hat{e}$ là vectơ chỉ có bit $1$ tại vị
+        trí $i$ tìm được ở Bước~3 ($\hat{e} = 0$ nếu $s = 0$). Từ mã sau sửa là $\hat{c} = r \xor \hat{e}$,
+        dữ liệu là $4$ bit đầu của $\hat{c}$. Nếu thực tế chỉ có một lỗi thì
+        $\hat{e} = e$ và $\hat{c} = c$; nếu có từ hai lỗi trở lên thì
+        $\hat{c} \neq c$.
+\end{enumerate}

@@ -1,0 +1,224 @@
+% =====================================================================
+%  CHƯƠNG 2. GIẢI THÍCH CƠ SỞ LÝ THUYẾT CỦA G, H VÀ MỞ RỘNG SANG MÃ (8,4)
+% =====================================================================
+\chapter{GIẢI THÍCH CƠ SỞ LÝ THUYẾT CỦA G, H VÀ MỞ RỘNG SANG MÃ (8,4)}
+\label{chap:2}
+
+Trong chương này, $h_j$ (cột thứ $j$ của $H$) được viết như một vectơ hàng
+ba thành phần. Với $x = (x_1\,\dots\,x_7) \in \GFn{7}$, tích $x\HT$ là tổng
+các hàng của $\HT$ ứng với các vị trí $x_j = 1$:
+\begin{equation}\label{eq:tongcot}
+  x\HT = \bigoplus_{j\,:\,x_j = 1} h_j .
+\end{equation}
+
+% ---------------------------------------------------------------------
+\section{Vì sao \texorpdfstring{$G$}{G} có dạng \texorpdfstring{$[I_4 \mid P]$}{[I4 | P]}}
+\label{sec:2.1}
+
+Bốn cột đầu của $G$ tạo thành $I_4$, nên bốn hàng của $G$ độc lập tuyến tính
+và $\rank G = 4$. Do đó ánh xạ $u \mapsto uG$ từ $\GFn{4}$ vào $\GFn{7}$ là
+đơn ánh, và $C$ (không gian hàng của $G$) có số chiều $4$, gồm đúng
+$2^4 = 16$ từ mã phân biệt. Hơn nữa $uG = (u \mid uP)$, nên dữ liệu đọc
+thẳng từ 4 bit đầu của từ mã.
+
+\canviet{Giải thích thêm: mọi mã tuyến tính đều đưa được về dạng hệ thống
+bằng các phép biến đổi sơ cấp trên hàng (và hoán vị cột nếu cần); vai trò của
+$P$ (mỗi cột của $P$ cho một phương trình bit kiểm tra). Liên hệ hạng ma
+trận, không gian hàng.}
+
+% ---------------------------------------------------------------------
+\section{Vì sao \texorpdfstring{$H = [P^{\mathsf T} \mid I_3]$ và $GH^{\mathsf T} = 0$}{H = [PT | I3] và GHT = 0}}
+\label{sec:2.2}
+
+\begin{menhde}\label{md:GHT}
+$G\HT = 0$ và $C = \{\, c \in \GFn{7} : c\HT = 0 \,\}$.
+\end{menhde}
+\begin{proof}
+Nhân theo khối, với $\HT = \begin{bmatrix} P \\ I_3 \end{bmatrix}$:
+\[
+  G\HT = [\,I_4 \mid P\,]\begin{bmatrix} P \\ I_3 \end{bmatrix}
+       = I_4 P \xor P I_3 = P \xor P = 0 ,
+\]
+vì trên $\GF$ mọi phần tử cộng với chính nó bằng $0$. Do đó với mọi từ mã
+$c = uG$ ta có $c\HT = u(G\HT) = 0$, tức $C \subseteq \ker$, với
+$\ker = \{x \in \GFn{7} : x\HT = 0\}$.
+
+Ba cột cuối của $H$ tạo thành $I_3$ nên $\rank H = 3$. Theo định lý hạng --
+số chiều hạt nhân, $\dim \ker = 7 - 3 = 4 = \dim C$. Không gian con $C$ nằm
+trong $\ker$ và cùng số chiều nên $C = \ker$.
+\end{proof}
+
+\canviet{Giải thích vì sao chọn $H = [\PT \mid I_3]$: đây là cách viết ba
+phương trình bit kiểm tra $uP \xor (p_1\,p_2\,p_3) = 0$ thành ma trận. Lưu ý
+dấu: trên $\GF$ thì $-\PT = \PT$.}
+
+% ---------------------------------------------------------------------
+\section{Vì sao các cột của \texorpdfstring{$H$}{H} khác 0 và đôi một khác nhau}
+\label{sec:2.3}
+
+\canviet{(1) Nếu có $h_j = 0$ thì lỗi ở bit $j$ cho $s = 0$, không bị phát
+hiện. (2) Nếu có $h_i = h_j$ với $i \neq j$ thì lỗi ở bit $i$ và lỗi ở bit
+$j$ cho cùng hội chứng, không phân biệt được. (3) $\GFn{3}$ có đúng $2^3 - 1 = 7$
+vectơ khác $0$, nên $n = 7$ là độ dài lớn nhất với 3 bit kiểm tra; tổng quát
+mã Hamming có $n = 2^m - 1$, $k = 2^m - 1 - m$.}
+
+% ---------------------------------------------------------------------
+\section{\texorpdfstring{$d_{\min} = 3$}{dmin = 3} suy trực tiếp từ \texorpdfstring{$H$}{H}}
+\label{sec:2.4}
+
+\begin{dinhly}\label{dl:dmin3}
+Mã Hamming (7,4) có $\dmin = 3$.
+\end{dinhly}
+\begin{proof}
+Theo Mệnh đề~\ref{md:GHT} và \eqref{eq:tongcot}, $c \in C$ khi và chỉ khi
+tổng các cột $h_j$ ứng với các vị trí $c_j = 1$ bằng $0$.
+\begin{itemize}
+  \item Không có từ mã trọng số $1$: điều đó đòi hỏi $h_j = 0$, trái với việc
+        mọi cột của $H$ khác $0$.
+  \item Không có từ mã trọng số $2$: điều đó đòi hỏi $h_i \xor h_j = 0$, tức
+        $h_i = h_j$ với $i \neq j$, trái với việc các cột đôi một khác nhau.
+  \item Có từ mã trọng số $3$: $h_3 \xor h_6 \xor h_7
+        = \vt{0,1,1} \xor \vt{0,1,0} \xor \vt{0,0,1} = \vt{0,0,0}$, nên
+        $c = (0\,0\,1\,0\,0\,1\,1) \in C$ (hàng 3 của Bảng~\ref{tab:16tuma}).
+\end{itemize}
+Theo Mệnh đề~\ref{md:dmin-trongso}, $\dmin = 3$.
+\end{proof}
+
+\canviet{Hệ quả theo Định lý~\ref{dl:phathien-sua}: sửa được $t = 1$ lỗi,
+hoặc (nếu chỉ dùng để phát hiện) phát hiện được tối đa $2$ lỗi. Tổng quát:
+$\dmin$ là số nhỏ nhất các cột phụ thuộc tuyến tính của $H$.}
+
+% ---------------------------------------------------------------------
+% LƯU Ý TÍCH HỢP: tiêu đề giữ nguyên theo khung BTLDSTT.pdf. Tài liệu
+% "quy_uoc_chung_dang_he_thong" mục 8 đề xuất đổi thành
+% "Mã hoàn hảo: sửa được 1 lỗi, nhưng không thể đồng thời sửa 1 lỗi và
+%  phát hiện 2 lỗi" — CHỜ NHÓM TRƯỞNG XÁC NHẬN.
+\section{Mã hoàn hảo: vì sao sửa được 1 lỗi nhưng không phát hiện được 2 lỗi}
+\label{sec:2.5}
+
+Với mỗi từ mã $c$, gọi $B(c) = \{x \in \GFn{7} : \dist{x}{c} \le 1\}$ là
+quả cầu Hamming bán kính $1$ tâm $c$; $B(c)$ gồm $c$ và $7$ vectơ sai khác
+$c$ đúng một bit, nên $|B(c)| = 1 + 7 = 8$.
+
+\begin{dinhly}[Mã hoàn hảo]\label{dl:hoanhao}
+Các quả cầu $B(c)$, $c \in C$, đôi một rời nhau và phủ kín $\GFn{7}$.
+\end{dinhly}
+\begin{proof}
+Nếu $x \in B(c) \cap B(c')$ với $c \neq c'$ thì
+$\dist{c}{c'} \le \dist{c}{x} + \dist{x}{c'} \le 2 < \dmin = 3$, vô lý.
+Vậy các quả cầu rời nhau, và hợp của chúng có
+$16 \cdot 8 = 128 = 2^7 = |\GFn{7}|$ phần tử, tức phủ kín $\GFn{7}$.
+\end{proof}
+
+Hệ quả: mọi vectơ nhận được $r$ cách đúng một từ mã không quá một bit, nên
+bộ giải mã luôn trả về một từ mã. Nếu có đúng hai lỗi, $r = c \xor e$ với
+$\wt{e} = 2$ thì $\dist{r}{c} = 2$, nên $r$ nằm trong quả cầu của một từ mã
+$c' \neq c$ và bộ giải mã chọn $c'$: \emph{sửa nhầm}. Về hội chứng,
+$s = h_i \xor h_j \neq 0$ (vì $h_i \neq h_j$) và là một vectơ khác $0$ của
+$\GFn{3}$, nên trùng với một cột $h_k$ nào đó, giống hệt hội chứng của một
+lỗi đơn ở bit $k$.
+
+\begin{nhanxet}
+Không đánh đồng khả năng sửa một lỗi với khả năng phát hiện hai lỗi. Nếu
+\emph{chỉ phát hiện} (không sửa), mọi mẫu hai lỗi đều cho $s \neq 0$ và bị
+phát hiện, đúng với Định lý~\ref{dl:phathien-sua}(a). Nhưng khi bộ giải mã
+\emph{sửa} theo Bảng~\ref{tab:hoichung}, nó không phân biệt được một lỗi với
+hai lỗi, nên không thể đồng thời sửa một lỗi và phát hiện hai lỗi. Muốn
+làm được cả hai cần mã mở rộng (8,4) ở Mục~\ref{sec:2.7}.
+\end{nhanxet}
+
+\canviet{Giới thiệu cận Hamming tổng quát $2^k \sum_{i=0}^{t}\binom{n}{i} \le 2^n$
+và dấu bằng với $(n,k,t) = (7,4,1)$.}
+
+% ---------------------------------------------------------------------
+\section{Dạng cổ điển: hội chứng chính là số thứ tự vị trí lỗi}
+\label{sec:2.6}
+
+Trong dạng cổ điển, bit kiểm tra đặt ở các vị trí lũy thừa của 2:
+$c_{\text{cổ điển}} = (p_1\,p_2\,u_1\,p_3\,u_2\,u_3\,u_4)$, và cột thứ $j$ của
+ma trận kiểm tra là số $j$ viết ở hệ nhị phân (hàng 1 là bit thấp nhất):
+\begin{equation}
+  H_{\text{cổ điển}} = \MatHcd .
+\end{equation}
+Khi có một lỗi ở vị trí $j$, hội chứng $s = (s_1\,s_2\,s_3)$ là cột thứ $j$,
+nên đọc thẳng ra vị trí lỗi:
+\begin{equation}
+  j = s_1 + 2s_2 + 4s_3 .
+\end{equation}
+
+Dạng cổ điển và dạng hệ thống là cùng một mã sau một hoán vị vị trí: nếu
+$c = (c_1,\dots,c_7)$ là từ mã cổ điển thì
+\begin{equation}\label{eq:hoanvi}
+  c_{\text{hệ thống}} = (c_3,\,c_5,\,c_6,\,c_7,\,c_1,\,c_2,\,c_4).
+\end{equation}
+Ví dụ $0110011$ (cổ điển) $\leftrightarrow$ $1011010$ (hệ thống). Hội
+chứng của cùng một bit là cùng một vectơ ở hai dạng; chỉ khác nhãn vị trí
+(Bảng~\ref{tab:codien}). Báo cáo và phần mềm dùng \emph{dạng hệ thống}, nên
+hội chứng được tra theo Bảng~\ref{tab:hoichung}.
+
+\begin{table}[H]
+\centering
+\caption{Đối chiếu vị trí giữa dạng cổ điển và dạng hệ thống}
+\label{tab:codien}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Vị trí cổ điển $j$} & \textbf{Bit} & \textbf{Hội chứng $(s_1 s_2 s_3)$} &
+\textbf{Vị trí hệ thống}\\ \hline
+1 & $p_1$ & 100 & 5\\
+2 & $p_2$ & 010 & 6\\
+3 & $u_1$ & 110 & 1\\
+4 & $p_3$ & 001 & 7\\
+5 & $u_2$ & 101 & 2\\
+6 & $u_3$ & 011 & 3\\
+7 & $u_4$ & 111 & 4\\ \hline
+\end{tabular}
+\end{table}
+
+\canviet{Giải thích bằng lời ưu điểm của mỗi dạng: dạng cổ điển đọc vị trí
+lỗi trực tiếp; dạng hệ thống tách dữ liệu dễ (4 bit đầu) và gắn với
+$G = [I_4 \mid P]$.}
+
+% ---------------------------------------------------------------------
+\section{Mã Hamming mở rộng (8,4) để phát hiện hai lỗi}
+\label{sec:2.7}
+
+Thêm vào mỗi từ mã (7,4) một \emph{bit kiểm tra tổng thể}
+\begin{equation}
+  c_8 = c_1 \xor c_2 \xor \dots \xor c_7 ,
+\end{equation}
+ta được từ mã mở rộng $c' = (c_1\,\dots\,c_7\,c_8)$ có trọng số chẵn. Ma trận
+kiểm tra mở rộng cỡ $4 \times 8$ gồm ba hàng của $H$ thêm cột $0$ ở cuối và
+một hàng toàn số $1$:
+\begin{equation}\label{eq:Hmr}
+  \Hmr = \MatHmr .
+\end{equation}
+
+Khi nhận $r' = (r_1\,\dots\,r_8)$, tính
+\begin{equation}
+  s = (r_1\,\dots\,r_7)\HT, \qquad q = r_1 \xor r_2 \xor \dots \xor r_8 ,
+\end{equation}
+rồi kết luận theo Bảng~\ref{tab:84}.
+
+\begin{table}[H]
+\centering
+\caption{Quy tắc giải mã của mã Hamming mở rộng (8,4)}
+\label{tab:84}
+\begin{tabular}{|c|c|l|}
+\hline
+$s$ & $q$ & \textbf{Kết luận}\\ \hline
+$= 000$   & 0 & Không phát hiện lỗi\\
+$\ne 000$ & 1 & Một lỗi trong 7 bit đầu: lật bit $j$ với $s = h_j$\\
+$= 000$   & 1 & Lỗi ở bit thứ 8: lật bit 8\\
+$\ne 000$ & 0 & Phát hiện lỗi kép, không sửa\\ \hline
+\end{tabular}
+\end{table}
+
+Lý do: một lỗi làm $q = 1$ (số bit 1 đổi tính chẵn lẻ), và $s = h_j \ne 0$
+nếu lỗi nằm trong 7 bit đầu, $s = 0$ nếu lỗi ở bit 8. Hai lỗi giữ $q = 0$;
+nếu cả hai nằm trong 7 bit đầu thì $s = h_i \xor h_j \ne 0$, nếu một lỗi ở
+bit 8 thì $s = h_i \ne 0$. Vậy hai lỗi luôn rơi vào dòng cuối của bảng, không
+bị nhầm với một lỗi.
+
+\canviet{Chứng minh mã mở rộng có $\dmin = 4$ (mọi từ mã có trọng số chẵn,
+nên các từ mã trọng số 3 thành trọng số 4) và suy ra: sửa 1 lỗi đồng thời phát
+hiện 2 lỗi. Nêu giá phải trả: tỉ lệ mã giảm từ $4/7$ xuống $4/8 = 1/2$.}

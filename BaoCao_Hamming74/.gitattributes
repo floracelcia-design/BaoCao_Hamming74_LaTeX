@@ -1,0 +1,11 @@
+# Chuan hoa ky tu xuong dong trong repo, de may Windows va macOS
+# khong tao ra thay doi "gia" (ca file bi danh dau la da sua).
+* text=auto
+
+# File nhi phan: khong so sanh noi dung, khong doi xuong dong
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.xlsx binary
+*.docx binary

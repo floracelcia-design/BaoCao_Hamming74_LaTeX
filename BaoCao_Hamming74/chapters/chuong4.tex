@@ -1,0 +1,132 @@
+% =====================================================================
+%  CHƯƠNG 4. THIẾT KẾ VÀ XÂY DỰNG PHẦN MỀM MÔ PHỎNG
+% =====================================================================
+\chapter{THIẾT KẾ VÀ XÂY DỰNG PHẦN MỀM MÔ PHỎNG}
+\label{chap:4}
+
+% ---------------------------------------------------------------------
+\section{Quy trình mô phỏng}
+\label{sec:4.1}
+
+Hình~\ref{fig:quytrinh} mô tả quy trình mô phỏng từ chuỗi ký tự đầu vào đến
+chuỗi ký tự khôi phục.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=5mm and 7mm,
+  khoi/.style={draw,rounded corners=2pt,align=center,minimum height=11mm,
+               text width=3.3cm,font=\small,fill=gray!6},
+  kenh/.style={khoi,fill=gray!22},
+  mui/.style={-{Stealth[length=2.2mm]},thick}]
+  \node[khoi] (a) {Chuỗi ký tự\\ đầu vào};
+  \node[khoi,right=of a] (b) {Đổi sang byte,\\ tách khối 4 bit $u$};
+  \node[khoi,right=of b] (c) {Mã hóa\\ $c = uG$ (7 bit)};
+  \node[kenh,below=of c] (d) {Kênh BSC\\ $r = c \xor e$};
+  \node[khoi,left=of d] (e) {Hội chứng $s = r\HT$,\\ sửa một bit};
+  \node[khoi,left=of e] (f) {Lấy 4 bit đầu,\\ ghép thành ký tự};
+  \draw[mui] (a) -- (b);
+  \draw[mui] (b) -- (c);
+  \draw[mui] (c) -- (d);
+  \draw[mui] (d) -- (e);
+  \draw[mui] (e) -- (f);
+\end{tikzpicture}
+\caption{Quy trình mô phỏng mã hóa, gây nhiễu, phát hiện và sửa lỗi}
+\label{fig:quytrinh}
+\end{figure}
+
+\canviet{Mô tả từng bước của quy trình (4.1.1): ký tự $\to$ byte $\to$ hai khối
+4 bit; mã hóa từng khối; truyền qua kênh; tính hội chứng, sửa lỗi; lấy 4 bit
+đầu; ghép các khối thành byte và ký tự. Thay hình trên bằng sơ đồ chính thức
+nếu có.}
+
+% ---------------------------------------------------------------------
+\section{Cấu trúc các module}
+\label{sec:4.2}
+
+\begin{table}[H]
+\centering
+\caption{Các module của chương trình}
+\label{tab:module}
+\begin{tabular}{|p{3.9cm}|p{11.6cm}|}
+\hline
+\textbf{Module} & \textbf{Chức năng}\\ \hline
+\code{hamming.py}    & Mã hóa và giải mã một khối: \code{hamming\_encode},
+                       \code{calculate\_syndrome}, \code{hamming\_decode},
+                       kiểm tra đầu vào \code{validate\_bits}.\\ \hline
+\code{text\_codec.py} & Đổi chuỗi ký tự $\leftrightarrow$ dãy bit, tách và ghép
+                       khối 4 bit, gọi \code{hamming.py} cho từng khối.\\ \hline
+\code{channel.py}    & Giả lập kênh truyền có nhiễu (mục~\ref{sec:4.4}).\\ \hline
+\code{test\_hamming.py} & Bộ ca kiểm thử tự động (mục~\ref{sec:5.1}).\\ \hline
+\end{tabular}
+\end{table}
+
+Trong mã nguồn, biến \code{data} ứng với vectơ $u$, \code{codeword} ứng với
+từ mã $c$, \code{received} ứng với $r$ và \code{syndrome} ứng với $s$; chỉ số
+Python đếm từ $0$ nên bit thứ $i$ của báo cáo là phần tử $i-1$. Mã nguồn đầy
+đủ ở Phụ lục~A.
+
+\canviet{Mô tả chi tiết từng hàm (đầu vào, đầu ra, ngoại lệ). Xác nhận tên
+hàm của \code{text\_codec.py} và \code{channel.py} theo mã nguồn cuối cùng.}
+
+% ---------------------------------------------------------------------
+\section{Thuật toán lõi}
+\label{sec:4.3}
+
+Mã hóa một khối $u$ theo \eqref{eq:bitkiemtra}. Với vectơ nhận được
+$r = (r_1\,\dots\,r_7)$, mỗi hàng của $H$ cho một thành phần của hội chứng
+$s = r\HT$:
+\begin{equation}\label{eq:s-thanhphan}
+  s_1 = r_1 \xor r_2 \xor r_4 \xor r_5, \quad
+  s_2 = r_1 \xor r_3 \xor r_4 \xor r_6, \quad
+  s_3 = r_2 \xor r_3 \xor r_4 \xor r_7 .
+\end{equation}
+Bảy hội chứng khác $0$ chính là bảy cột của $H$; chương trình tra
+Bảng~\ref{tab:hoichung} để tìm vị trí cần lật.
+
+\canviet{Mã giả hoặc lưu đồ của \code{hamming\_encode} và \code{hamming\_decode};
+ví dụ chạy tay (1011 $\to$ 1011010; lỗi bit 3 $\to$ 1001010; $s = (0,1,1) = h_3$;
+sửa lại 1011010; giải mã 1011). Ghi rõ: khi có đúng hai lỗi, hội chứng luôn
+khác 0 và trùng hội chứng của một lỗi đơn, nên chương trình luôn sửa nhầm; khi
+từ ba lỗi, hội chứng có thể bằng 0.}
+
+% ---------------------------------------------------------------------
+\section{Mô hình nhiễu}
+\label{sec:4.4}
+
+Kênh truyền được mô phỏng bằng kênh đối xứng nhị phân (BSC, \emph{binary
+symmetric channel}) với xác suất đảo bit $p$, $0 \le p \le 1$: mỗi bit của
+từ mã bị đảo độc lập với xác suất $p$. Vectơ nhận được là $r = c \xor e$,
+và số bit lỗi $k$ trong một khối 7 bit tuân theo phân phối nhị thức
+\begin{equation}
+  \Pr(k \text{ lỗi}) = \binom{7}{k} p^k (1-p)^{7-k}.
+\end{equation}
+Vì mã (7,4) sửa đúng khi và chỉ khi có không quá một lỗi, xác suất một khối
+được giải mã đúng là
+\begin{equation}\label{eq:pkhoi}
+  \Pr(\text{khối đúng}) = (1-p)^7 + 7p(1-p)^6 .
+\end{equation}
+
+\canviet{Mô tả cách \code{channel.py} cài đặt mô hình: tham số $p$, \code{seed},
+có chế độ gây đúng $k$ lỗi hay không (cần cho mục~\ref{sec:5.2}); không sửa
+đè danh sách đầu vào.}
+
+% ---------------------------------------------------------------------
+\section{Cách chạy chương trình}
+\label{sec:4.5}
+
+\canviet{(1) Yêu cầu: phiên bản Python, các file đặt chung thư mục.
+(2) Lệnh chạy. (3) Dữ liệu nhập: chuỗi ký tự, $p$, \code{seed}.
+(4) Một ví dụ chạy và kết quả in ra (nên dùng chuỗi \code{"A"} để khớp
+Mục~\ref{sec:3.7}). Cần mã file chạy hoặc ảnh chụp kết quả thật.}
+
+% ---------------------------------------------------------------------
+\section{Một số xử lý đặc biệt}
+\label{sec:4.6}
+
+\canviet{Chỉ nêu những xử lý chương trình thực sự có, ví dụ: chuỗi rỗng; ký
+tự ngoài ASCII (UTF-8, 2--4 byte mỗi ký tự); byte không hợp lệ sau khi giải
+mã sai được thay bằng U+FFFD; kiểm tra kiểu và độ dài đầu vào
+(\code{TypeError}/\code{ValueError}); các trường hợp biên của kênh ($p = 0$,
+$p = 1$, $p \notin [0,1]$). Lưu ý: hội chứng bằng 0 chỉ cho biết $r$ là một từ
+mã, không chứng tỏ không có lỗi; bộ giải mã (7,4) không biết số lỗi thật.}

@@ -1,0 +1,52 @@
+% =====================================================================
+%  Lời mở đầu (TV1) — câu chuyện Hamming 1947 chuyển từ đầu Chương 1 sang
+%  đây theo yêu cầu nhóm trưởng (11/11/2026). Chi tiết lịch sử: Bell
+%  Telephone Laboratories 1947, máy tính rơ-le chạy cuối tuần không người
+%  trực, máy bỏ dở công việc khi phát hiện lỗi; bài báo Hamming 1950 đã
+%  kiểm chứng (IEEE Xplore, BSTJ 29(2), 147-160). Phần bố cục báo cáo bám
+%  đúng tên 6 chương + Phụ lục A trong BTLDSTT.pdf.
+% =====================================================================
+\chuongphu{LỜI MỞ ĐẦU}
+
+Một sáng thứ Hai năm 1947, tại phòng thí nghiệm Bell Telephone Laboratories
+(Hoa Kỳ), nhà toán học Richard Hamming quay lại bên một máy tính rơ-le mà ông
+đã giao chương trình chạy từ tối thứ Sáu. Dữ liệu vào là các bìa đục lỗ, và
+suốt cuối tuần không có người trực máy. Ông chỉ thấy một khoảng trống: máy đã
+phát hiện ra một lỗi, bỏ dở công việc rồi chuyển sang công việc kế tiếp, nên cả
+cuối tuần tính toán không để lại kết quả nào. Chuyện ấy không chỉ xảy ra một
+lần.
+
+Điều làm Hamming bực bội không phải là máy có thể sai, mà là máy \emph{biết}
+mình vừa sai nhưng chỉ có thể bỏ cuộc. Ông đặt ra một câu hỏi giản dị: nếu máy
+đã nhận ra có một bit bị đảo, tại sao nó không xác định luôn bit đó nằm ở đâu
+để tự sửa lại? Từ câu hỏi ấy ra đời bài báo \emph{Error Detecting and Error
+Correcting Codes} \cite{hamming1950}, công bố năm 1950 trên tạp chí \emph{Bell
+System Technical Journal}, và mã Hamming ra đời cùng với nó.
+
+Cách sửa lỗi dễ hình dung nhất là \emph{mã lặp}: gửi mỗi bit ba lần rồi lấy
+theo đa số. Cách này sửa được một lỗi nhưng rất tốn kém: tốc độ mã (tỉ số giữa
+số bit dữ liệu và độ dài từ mã) chỉ là $R = 1/3$, tức mỗi bit dữ liệu phải
+gánh thêm $2$ bit dư. Hamming chỉ ra rằng có thể làm tốt hơn nhiều: chỉ cần
+$3$ bit kiểm tra để bảo vệ $4$ bit dữ liệu ($R = 4/7$), mà bên nhận vẫn tìm ra
+và sửa được một bit sai bất kỳ.
+
+Bí quyết nằm ở chỗ biến việc ``tìm bit sai'' thành một bài toán của đại số
+tuyến tính trên trường $\GF$ chỉ có hai phần tử $0$ và $1$: các bit kiểm tra là
+tổ hợp tuyến tính của các bit dữ liệu, và ``dấu vết'' mà một bit sai để lại
+(gọi là \emph{hội chứng}) cho biết bit nào đã bị đảo. Đó cũng là sợi chỉ xuyên
+suốt bài tập lớn này.
+
+Bài tập lớn môn Đại số tuyến tính (MT1007) của nhóm 10 đi theo hướng ấy với đề
+tài ``Mã Hamming (7,4): mô phỏng mã hóa, gây nhiễu, phát hiện và sửa lỗi cho
+chuỗi ký tự''. Nhóm trình bày cơ sở lý thuyết, giải thích và chứng minh các
+tính chất của ma trận tạo mã và ma trận kiểm tra, mở rộng sang mã Hamming
+(8,4), rồi xây dựng phần mềm Python mô phỏng toàn bộ quá trình trên chuỗi ký
+tự.
+
+Báo cáo gồm sáu chương và một phụ lục. Chương~\ref{chap:1} trình bày cơ sở lý
+thuyết của mã Hamming (7,4). Chương~\ref{chap:2} giải thích cơ sở lý thuyết của
+các ma trận $G$, $H$ và mở rộng sang mã (8,4). Chương~\ref{chap:3} minh họa
+bằng ví dụ tạo mã, kiểm tra lỗi và sửa lỗi. Chương~\ref{chap:4} trình bày thiết
+kế và xây dựng phần mềm mô phỏng. Chương~\ref{chap:5} báo cáo kiểm thử và kết
+quả thực nghiệm. Chương~\ref{chap:6} nêu kết luận và hướng phát triển. Phụ lục A
+chứa mã nguồn chương trình Python.

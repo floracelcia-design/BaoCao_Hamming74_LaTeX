@@ -1,0 +1,127 @@
+% =====================================================================
+%  CHƯƠNG 3. VÍ DỤ TẠO MÃ, KIỂM TRA LỖI VÀ SỬA LỖI
+%  Số liệu theo mục 6 tài liệu "quy_uoc_chung_dang_he_thong" (dạng hệ
+%  thống); đã kiểm tra lại bằng code ngày 11/11/2026.
+% =====================================================================
+\chapter{VÍ DỤ TẠO MÃ, KIỂM TRA LỖI VÀ SỬA LỖI}
+\label{chap:3}
+
+% ---------------------------------------------------------------------
+\section{Đoạn mã ví dụ}
+\label{sec:3.1}
+
+Xét khối dữ liệu 4 bit
+\begin{equation}
+  u = (u_1\,u_2\,u_3\,u_4) = (1\,0\,1\,1).
+\end{equation}
+Ta dùng ma trận tạo mã $G$ ở \eqref{eq:G} và ma trận kiểm tra $H$ ở
+\eqref{eq:H}; hai ma trận dùng được cùng nhau vì $G\HT = 0$
+(Mệnh đề~\ref{md:GHT}).
+
+% ---------------------------------------------------------------------
+\section{Tạo mã bằng mã Hamming (7,4)}
+\label{sec:3.2}
+
+Theo \eqref{eq:bitkiemtra}:
+\begin{align*}
+  p_1 &= u_1 \xor u_2 \xor u_4 = 1 \xor 0 \xor 1 = 0,\\
+  p_2 &= u_1 \xor u_3 \xor u_4 = 1 \xor 1 \xor 1 = 1,\\
+  p_3 &= u_2 \xor u_3 \xor u_4 = 0 \xor 1 \xor 1 = 0 .
+\end{align*}
+Tính bằng ma trận, $c = uG$ là tổng các hàng 1, 3, 4 của $G$ (ứng với
+$u_1 = u_3 = u_4 = 1$):
+\[
+  c = (1\,0\,0\,0\,1\,1\,0) \xor (0\,0\,1\,0\,0\,1\,1) \xor (0\,0\,0\,1\,1\,1\,1)
+    = (1\,0\,1\,1\,0\,1\,0).
+\]
+Hai cách cho cùng kết quả: $c = 1011\,010$, khớp hàng 12 của
+Bảng~\ref{tab:16tuma}.
+
+% ---------------------------------------------------------------------
+\section{Kiểm tra từ mã không có lỗi}
+\label{sec:3.3}
+
+Giả sử nhận được $r = c = (1\,0\,1\,1\,0\,1\,0)$. Các bit bằng 1 ở vị trí
+1, 3, 4, 6, nên theo \eqref{eq:tongcot}:
+\[
+  s = r\HT = h_1 \xor h_3 \xor h_4 \xor h_6
+    = \vt{1,1,0} \xor \vt{0,1,1} \xor \vt{1,1,1} \xor \vt{0,1,0} = \vt{0,0,0}.
+\]
+Hội chứng bằng $0$: $r$ là từ mã, không sửa. Dữ liệu là 4 bit đầu,
+$\hat{u} = 1011$.
+
+% ---------------------------------------------------------------------
+\section{Phát hiện và sửa một lỗi}
+\label{sec:3.4}
+
+Giả sử bit thứ 2 bị đảo: $e = (0\,1\,0\,0\,0\,0\,0)$ và
+\[
+  r = c \xor e = (1\,1\,1\,1\,0\,1\,0).
+\]
+Theo \eqref{eq:hoichung}, $s = e\HT = h_2 = \vt{1,0,1}$. Tra
+Bảng~\ref{tab:hoichung}: $s = h_2$, lật bit 2, được $(1\,0\,1\,1\,0\,1\,0) = c$.
+Dữ liệu giải mã $\hat{u} = 1011 = u$: sửa đúng.
+
+% ---------------------------------------------------------------------
+\section{Khi có hai lỗi với mã (7,4)}
+\label{sec:3.5}
+
+Giả sử bit 2 và bit 6 cùng bị đảo: $e = (0\,1\,0\,0\,0\,1\,0)$ và
+\[
+  r = c \xor e = (1\,1\,1\,1\,0\,0\,0).
+\]
+Hội chứng
+\[
+  s = h_2 \xor h_6 = \vt{1,0,1} \xor \vt{0,1,0} = \vt{1,1,1} = h_4 .
+\]
+Bộ giải mã coi đây là lỗi đơn ở bit 4 và lật bit 4, được
+$(1\,1\,1\,0\,0\,0\,0)$, là từ mã của $u' = 1110$ (hàng 15 của
+Bảng~\ref{tab:16tuma}). Kết quả $\hat{u} = 1110 \neq u$: \emph{sửa nhầm},
+và bộ giải mã không có cách nào biết điều đó (Mục~\ref{sec:2.5}).
+
+% ---------------------------------------------------------------------
+\section{Dùng mã mở rộng (8,4) cho cùng đoạn mã}
+\label{sec:3.6}
+
+Từ mã (7,4) $c = 1011010$ có trọng số $4$ (chẵn), nên
+$c_8 = 1 \xor 0 \xor 1 \xor 1 \xor 0 \xor 1 \xor 0 = 0$ và
+\[
+  c' = (1\,0\,1\,1\,0\,1\,0\,0).
+\]
+Với cùng hai lỗi ở bit 2 và bit 6:
+\[
+  r' = (1\,1\,1\,1\,0\,0\,0\,0), \qquad
+  s = (r_1\,\dots\,r_7)\HT = \vt{1,1,1} \neq 0, \qquad
+  q = r_1 \xor \dots \xor r_8 = 0 .
+\]
+Theo Bảng~\ref{tab:84}, $s \ne 0$ và $q = 0$: \emph{phát hiện lỗi kép}, không
+sửa. Cùng mẫu lỗi này, mã (7,4) sửa nhầm (Mục~\ref{sec:3.5}), còn mã (8,4)
+báo được là có lỗi không sửa được.
+
+\canviet{(Tùy chọn) Thêm một ví dụ lỗi đơn trên $c'$ để minh họa dòng
+``$s \neq 0,\ q = 1$'' của Bảng~\ref{tab:84}.}
+
+% ---------------------------------------------------------------------
+\section{Áp dụng cho một ký tự}
+\label{sec:3.7}
+
+Ký tự \code{'A'} có mã ASCII $65 = 01000001_2$. Tách thành hai khối 4 bit
+$0100$ và $0001$, mã hóa từng khối:
+\[
+  0100 \;\mapsto\; 0100\,101, \qquad 0001 \;\mapsto\; 0001\,111 ,
+\]
+được chuỗi 14 bit $01001010001111$.
+
+Giả sử khối thứ nhất bị đảo bit 3: $r = (0\,1\,1\,0\,1\,0\,1)$. Các bit bằng 1
+ở vị trí 2, 3, 5, 7, nên
+\[
+  s = h_2 \xor h_3 \xor h_5 \xor h_7
+    = \vt{1,0,1} \xor \vt{0,1,1} \xor \vt{1,0,0} \xor \vt{0,0,1}
+    = \vt{0,1,1} = h_3 .
+\]
+Lật bit 3 được $0100101$, lấy 4 bit đầu được $0100$. Khối thứ hai
+$0001111$ không lỗi, cho $0001$. Ghép lại $0100\,0001 = 01000001_2 = 65$,
+tức ký tự \code{'A'}.
+
+\canviet{Câu nối sang Chương 4: phần mềm tự động hóa đúng quy trình này cho
+chuỗi ký tự bất kỳ (mỗi byte thành hai khối 4 bit).}

@@ -1,0 +1,254 @@
+% =====================================================================
+%  config/settings.tex — gói lệnh và định dạng chung
+% =====================================================================
+\usepackage{iftex}
+
+% ---------------- Phông chữ và tiếng Việt ----------------------------
+\ifPDFTeX
+  % pdfLaTeX: cần gói vntex (có sẵn trong TeX Live đầy đủ / Overleaf)
+  \usepackage[T5]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{times}
+\else
+  % XeLaTeX / LuaLaTeX: TeX Gyre Termes (bản Times đầy đủ dấu tiếng Việt)
+  \usepackage{fontspec}
+  \setmainfont{texgyretermes}[
+    Extension      = .otf,
+    UprightFont    = *-regular,
+    BoldFont       = *-bold,
+    ItalicFont     = *-italic,
+    BoldItalicFont = *-bolditalic]
+  % Phông chữ đơn cách cho mã nguồn: TeX Gyre Cursor (kiểu Courier,
+  % đủ dấu tiếng Việt)
+  \setmonofont{texgyrecursor}[
+    Extension      = .otf,
+    UprightFont    = *-regular,
+    BoldFont       = *-bold,
+    ItalicFont     = *-italic,
+    BoldItalicFont = *-bolditalic]
+\fi
+\IfFileExists{vietnamese.ldf}
+  {\usepackage[vietnamese]{babel}}
+  {\usepackage{babel}\babelprovide[import,main]{vietnamese}}
+
+% ---------------- Trang ----------------------------------------------
+\usepackage[a4paper,left=2.5cm,right=1.5cm,top=2.5cm,bottom=2.5cm,
+            footskip=1.2cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.3}
+\setlength{\parindent}{1cm}
+\setlength{\parskip}{4pt}
+\usepackage{indentfirst}      % thụt lề cả đoạn đầu sau tiêu đề (kiểu VN)
+\pagestyle{plain}
+
+% ---------------- Toán học -------------------------------------------
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\allowdisplaybreaks[2]
+
+% ---------------- Bảng, hình, màu ------------------------------------
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{array,booktabs,multirow,longtable}
+\usepackage{float}
+\usepackage[table]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+\usepackage[font=normalsize,labelfont=bf,labelsep=period,
+            justification=centering,skip=6pt]{caption}
+\captionsetup[table]{position=top}
+\numberwithin{equation}{chapter}
+\numberwithin{figure}{chapter}
+\numberwithin{table}{chapter}
+\renewcommand{\arraystretch}{1.25}
+
+% ======================================================================
+%  QUY TẮC TRÌNH BÀY CHUNG (áp dụng cho mọi chương)
+%  1. Cấp tiêu đề: CHƯƠNG > x.y > \mucnho{1) ...} > \mucphu{...} > nhãn
+%     nghiêng đầu mục ("Khái niệm:") ngay trong dòng.
+%     \mucnho đánh số 1), 2) khi mục có từ hai nội dung song song; không
+%     đánh số khi chỉ là một khối riêng. Mọi tiêu đề đi liền đoạn sau.
+%  2. Danh sách: cấp 1 "•", cấp 2 "–"; công thức/bảng thuộc ý nào thì
+%     nằm TRONG mục danh sách của ý đó, không để rời giữa hai danh sách.
+%  3. Định lý/Mệnh đề/Hệ quả: đầu đề đậm, thân nghiêng. Định nghĩa/Ví dụ:
+%     đầu đề đậm, thân đứng; Ví dụ kết thúc bằng dấu ◊. Nhận xét/Lưu ý:
+%     đầu đề nghiêng, thân đứng. Kết luận mở đầu bằng "→" = \begin{ketluan}.
+%     Không tô nền, không vạch màu; chỉ "Quy ước chung" có khung đen mảnh.
+%  4. Công thức: chỉ đánh số công thức cốt lõi hoặc được dẫn chiếu; phép
+%     tính trung gian không đánh số. Mọi công thức đứng cùng câu dẫn.
+%  5. Bảng: tiêu đề phía trên, đánh số "Bảng n.m."; kẻ ô đen mảnh; hàng
+%     tiêu đề chữ đậm; chữ \small. Bảng nhỏ minh họa trong ví dụ thì
+%     không đánh số.
+%  6. Không để tiêu đề cuối trang, không tách công thức khỏi câu dẫn.
+% ======================================================================
+\usepackage{needspace}
+% Tiêu đề cấp 3: "1) ...", riêng một dòng, đậm
+\newcommand{\mucnho}[1]{\par\addvspace{8pt}\Needspace{5\baselineskip}%
+  \noindent\textbf{\boldmath #1}\par\nopagebreak\vspace{2pt}}
+% Tiêu đề cấp 4: riêng một dòng, đậm nghiêng
+\newcommand{\mucphu}[1]{\par\addvspace{5pt}\Needspace{4\baselineskip}%
+  \noindent\textbf{\boldmath\textit{#1}}\par\nopagebreak\vspace{1pt}}
+
+% ---------------- Danh sách ------------------------------------------
+\usepackage{enumitem}
+\setlist{itemsep=3pt,topsep=3pt,parsep=0pt,partopsep=0pt}
+\setlist[itemize,1]{label=\textbullet,leftmargin=1.0cm,labelsep=0.5em}
+\setlist[itemize,2]{label=--,leftmargin=0.9cm,labelsep=0.5em}
+\setlist[itemize,3]{label=$\circ$,leftmargin=0.9cm,labelsep=0.5em}
+\setlist[enumerate]{leftmargin=1.0cm,labelsep=0.5em}
+
+% ---------------- Mã nguồn -------------------------------------------
+% Dùng minted (tô màu cú pháp, cần biên dịch với -shell-escape và Python
+% Pygments; Overleaf có sẵn). Nếu không bật shell-escape, tự chuyển sang
+% fvextra (không tô màu). Gói listings KHÔNG dùng vì in sai thứ tự chữ
+% tiếng Việt (ồ, ữ, ơ, đ...) khi biên dịch bằng XeLaTeX.
+\usepackage{fvextra}
+\newif\ifdungminted
+\ifdefined\shellescape\ifnum\shellescape=1 \dungmintedtrue\fi\fi
+\ifdefined\pdfshellescape\ifnum\pdfshellescape=1 \dungmintedtrue\fi\fi
+\ifdungminted
+  \usepackage{minted}
+  \setminted{style=friendly,fontsize=\footnotesize,linenos,numbersep=6pt,
+    frame=single,framesep=2mm,rulecolor=\color{gray!60},
+    breaklines=true,tabsize=4}
+\fi
+\fvset{fontsize=\footnotesize,frame=single,framesep=2mm,
+  rulecolor=\color{gray!60},breaklines=true,tabsize=4}
+% Kiểu chú thích "Mã x.y" và danh sách mã nguồn
+\DeclareCaptionType[fileext=lol,within=chapter]{chuongtrinh}[Mã][Danh sách mã nguồn]
+% \maNguon{đường dẫn file}{chú thích}{nhãn}
+\newcommand{\maNguon}[3]{%
+  \par\medskip\noindent
+  \begin{minipage}{\linewidth}\captionof{chuongtrinh}{#2}\label{#3}\end{minipage}
+  \par\nopagebreak
+  \ifdungminted
+    \inputminted{python}{#1}%
+  \else
+    \VerbatimInput[numbers=left,numbersep=6pt]{#1}%
+  \fi
+  \medskip}
+
+% ---------------- Khung nhắc nội dung (ẩn khi nộp) -------------------
+\usepackage[most]{tcolorbox}
+\newif\ifhienkhung
+\newcommand{\canviet}[1]{%
+  \ifhienkhung
+  \begin{tcolorbox}[breakable,enhanced,colback=gray!6,colframe=gray!55,
+      boxrule=0.4pt,arc=1pt,left=6pt,right=6pt,top=3pt,bottom=3pt,
+      fonttitle=\small\bfseries,coltitle=black,colbacktitle=gray!18,
+      title={Nội dung cần viết}]
+    \small\itshape #1
+  \end{tcolorbox}
+  \fi}
+% Khung "quy ước" — là nội dung thật của báo cáo, luôn hiện:
+% khung đen mảnh, tiêu đề đậm ngay trong khung
+\newtcolorbox{quyuoc}[1][Quy ước]{breakable,colback=white,colframe=black,
+  boxrule=0.5pt,arc=0pt,left=7pt,right=7pt,top=5pt,bottom=5pt,
+  before skip=8pt,after skip=10pt,
+  before upper={\textbf{#1}\par\smallskip}}
+
+% ---------------- Định lý, định nghĩa, ví dụ -------------------------
+\usepackage{etoolbox}
+\theoremstyle{plain}
+\newtheorem{dinhly}{Định lý}[chapter]
+\newtheorem{menhde}[dinhly]{Mệnh đề}
+\newtheorem{hequa}[dinhly]{Hệ quả}
+\theoremstyle{definition}
+\newtheorem{dinhnghia}{Định nghĩa}[chapter]
+\newtheorem{vidu}{Ví dụ}[chapter]
+\theoremstyle{remark}
+\newtheorem{nhanxet}{Nhận xét}[chapter]
+\newtheorem*{luuy}{Lưu ý}
+\renewcommand{\proofname}{Chứng minh}
+% Dấu ◊ kết thúc mỗi ví dụ
+\AtEndEnvironment{vidu}{\unskip\nobreak\hfill\ensuremath{\diamond}}
+% Kết luận mở đầu bằng mũi tên (không khung, không nền)
+\newenvironment{ketluan}
+  {\par\addvspace{4pt}\begingroup\leftskip=1.4em\noindent
+   \hspace*{-1.4em}\makebox[1.4em][l]{$\rightarrow$}\ignorespaces}
+  {\par\endgroup\addvspace{4pt}}
+
+% ---------------- Tên các mục (tiếng Việt) ---------------------------
+\addto\captionsvietnamese{%
+  \renewcommand{\contentsname}{MỤC LỤC}%
+  \renewcommand{\listfigurename}{Danh sách hình vẽ}%
+  \renewcommand{\listtablename}{Danh sách bảng}%
+  \renewcommand{\figurename}{Hình}%
+  \renewcommand{\tablename}{Bảng}%
+  \renewcommand{\bibname}{TÀI LIỆU THAM KHẢO}%
+  \renewcommand{\chaptername}{CHƯƠNG}%
+  \renewcommand{\appendixname}{Phụ lục}%
+}
+
+% ---------------- Tiêu đề chương, mục --------------------------------
+\usepackage{titlesec}
+\newcommand{\chuongfont}{\fontsize{13pt}{17pt}\selectfont\bfseries}
+\titleformat{\chapter}[block]
+  {\chuongfont\boldmath\centering}{CHƯƠNG \thechapter.}{1em}{}
+\titleformat{name=\chapter,numberless}[block]
+  {\chuongfont\centering}{}{0pt}{\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{0pt}{18pt}
+\titleformat{\section}
+  {\normalsize\bfseries\boldmath}{\thesection.}{0.8em}{}
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titleformat{\subsection}
+  {\normalsize\bfseries\boldmath}{\thesubsection.}{0.8em}{}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\itshape}{\thesubsubsection.}{0.8em}{}
+\titlespacing*{\subsubsection}{0pt}{8pt}{3pt}
+% Không để tiêu đề mục (x.y, x.y.z) nằm lẻ loi cuối trang
+\usepackage{etoolbox}
+\pretocmd{\section}{\Needspace{6\baselineskip}}{}{}
+\pretocmd{\subsection}{\Needspace{5\baselineskip}}{}{}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{1}       % mục lục đến cấp x.y như khung
+
+% ---------------- Mục lục, danh sách hình, bảng ----------------------
+\usepackage[titles]{tocloft}
+\renewcommand{\cftdotsep}{2}
+% Cấp chương
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftchappagefont}{\bfseries}
+\renewcommand{\cftchappresnum}{CHƯƠNG~}
+\renewcommand{\cftchapaftersnum}{.}
+\setlength{\cftchapnumwidth}{2.75cm}
+\renewcommand{\cftchapleader}{\bfseries\cftdotfill{\cftdotsep}}
+\setlength{\cftbeforechapskip}{9pt}
+% Cấp mục
+\setlength{\cftsecindent}{1.0cm}
+\setlength{\cftsecnumwidth}{1.1cm}
+\renewcommand{\cftsecaftersnum}{.}
+\setlength{\cftbeforesecskip}{1pt}
+% Hình, bảng
+\setlength{\cftfigindent}{0pt}
+\setlength{\cftfignumwidth}{1.5cm}
+\renewcommand{\cftfigpresnum}{Hình~}
+\renewcommand{\cftfigaftersnum}{.}
+\setlength{\cftfignumwidth}{2.1cm}
+\setlength{\cfttabindent}{0pt}
+\renewcommand{\cfttabpresnum}{Bảng~}
+\renewcommand{\cfttabaftersnum}{.}
+\setlength{\cfttabnumwidth}{2.1cm}
+% Tiêu đề trang mục lục / danh sách: in hoa, giữa trang
+\makeatletter
+\renewcommand{\tableofcontents}{%
+  \chapter*{MỤC LỤC}\@starttoc{toc}}
+\renewcommand{\listoffigures}{%
+  \chapter*{DANH SÁCH HÌNH VẼ}\@starttoc{lof}}
+\renewcommand{\listoftables}{%
+  \chapter*{DANH SÁCH BẢNG}\@starttoc{lot}}
+\makeatother
+
+% Chương không đánh số nhưng có trong mục lục (Tóm tắt, Lời cảm ơn, ...)
+\newcommand{\chuongphu}[1]{%
+  \cleardoublepage\phantomsection
+  \addcontentsline{toc}{chapter}{#1}%
+  \chapter*{#1}}
+
+% ---------------- Liên kết -------------------------------------------
+\usepackage[unicode,hidelinks,bookmarksnumbered]{hyperref}
+\hypersetup{
+  pdftitle={Mã Hamming (7,4): mô phỏng mã hóa, gây nhiễu, phát hiện và sửa lỗi cho chuỗi ký tự},
+  pdfauthor={Nhóm 10 – Lớp L06 – MT1007},
+  pdfsubject={Báo cáo bài tập lớn Đại số tuyến tính}}
