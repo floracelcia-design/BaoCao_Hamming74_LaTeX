@@ -642,20 +642,10 @@ nhận được là
 \[
   r = (1,1,1,1,1,1,0,0) .
 \]
-Ta tính ba bit hội chứng đầu $s = (r_1, \dots, r_7)\HT$. Thay số:
-\begin{align*}
-  s_1 &= r_1 \xor r_2 \xor r_4 \xor r_5 = 1 \xor 1 \xor 1 \xor 1 = 0,\\
-  s_2 &= r_1 \xor r_3 \xor r_4 \xor r_6 = 1 \xor 1 \xor 1 \xor 1 = 0,\\
-  s_3 &= r_2 \xor r_3 \xor r_4 \xor r_7 = 1 \xor 1 \xor 1 \xor 0 = 1,
-\end{align*}
-tức $s = (0,0,1)$. Tiếp theo, kiểm tra tính chẵn lẻ tổng thể:
-\[
-  q = 1 \xor 1 \xor 1 \xor 1 \xor 1 \xor 1 \xor 0 \xor 0 = 0 .
-\]
-Vậy hội chứng mở rộng là
-\[
-  s' = (s_1, s_2, s_3, q) = (0,0,1,0).
-\]
+% 13/11/2026: nhóm quyết định ví dụ hai lỗi của mã (8,4) chỉ tính chi tiết
+% ở mục 3.6; ở đây giữ phần đặt đề, đối chiếu bảng và kết luận.
+Hội chứng và kết quả kiểm tra tổng thể của ví dụ này được tính chi tiết ở
+mục~\ref{sec:3.6}: $s = (0,0,1)$ và $q = 0$, tức $s \neq 000$ và $q = 0$.
 Ta có $s \neq 000$ và $q = 0$. Đối chiếu với bảng phân loại (Bảng~\ref{tab:84}),
 hệ thống xác định có lỗi kép và không thực hiện sửa tự động. Như vậy, việc bổ
 sung bit kiểm tra chẵn lẻ tổng thể đã giúp hệ thống phân biệt được trường hợp
