@@ -20,6 +20,16 @@
 %  1.1 -> 1.2; GF(2) là trường; |C| = 2^k (1.5, 1.7); ý nghĩa tốc độ mã (1.4);
 %  ý nghĩa G H^T = 0 (1.6); Lưu ý 1.3 dẫn chiếu Bảng chế độ giải mã (2.5.2);
 %  Hình 1.1 (u -> c -> r -> s -> c^ -> u^) và đoạn tóm tắt cuối 1.8.
+%  Chỉnh 15/11/2026 (tối) theo bản nhận xét Chương 1
+%  1.1: tỉ số 1 lỗi / 2 lỗi chuyển xuống sau định nghĩa BSC (công thức nhị
+%  thức cần giả thiết các bit lỗi độc lập), viết cho khối n bit, giữ hai giá
+%  trị p; bảng 4 xác suất điều kiện thay bằng một công thức.
+%  1.2: hai cách mô tả không gian con (cơ sở -> G; hệ phương trình -> H) thay
+%  cho ma trận G tổng quát (g_ij).
+%  1.3: c' -> c~ trong chứng minh Định lý 1.1 (c' chỉ dùng cho từ mã mở rộng).
+%  1.4, 1.6: phân biệt mã Hamming với mã tuyến tính (7,4) bất kỳ (phản ví dụ
+%  h1 = h5, dmin = 2; tổng quát n = 2^m - 1). 1.5: sửa câu bị ngắt quanh
+%  công thức hoán vị. 1.7: rút gọn đoạn mở đầu, nêu bảng dùng lại ở đâu.
 % =====================================================================
 \chapter{CƠ SỞ LÝ THUYẾT MÃ HAMMING (7,4)}
 \label{chap:1}
@@ -59,15 +69,10 @@ là phần tử $i-1$ của danh sách.
 \end{itemize}
 
 \begin{ketluan}
-Nhiễu có tính ngẫu nhiên. Phía nhận không thể biết trước khi nào
-lỗi sẽ xảy ra, chỉ có thể đo lường thông qua xác suất lỗi bit. Khi xác suất
-lỗi $p$ nhỏ, 1 lỗi xảy ra nhiều hơn hẳn 2 lỗi, 3 lỗi. Cụ thể, trong một khối
-$7$ bit, tỉ số giữa xác suất có đúng $1$ lỗi và có đúng $2$ lỗi là
-$\frac{7p(1-p)^6}{21p^2(1-p)^5} = \frac{1-p}{3p}$: khoảng $333$ lần khi
-$p = 0{,}001$, $33$ lần khi $p = 0{,}01$, $6{,}3$ lần khi $p = 0{,}05$, nhưng
-chỉ còn $3$ lần khi $p = 0{,}1$. Vì vậy, khi $p$ đủ nhỏ, ta chỉ cần thiết kế
-mã sửa được vài lỗi là đã đủ hiệu quả, không cần đối phó với mọi trường hợp
-xấu nhất.
+Nhiễu có tính ngẫu nhiên. Phía nhận không thể biết trước khi nào lỗi sẽ xảy
+ra; nhiễu chỉ được mô tả qua xác suất lỗi bit $p$ (mô hình ở phần~3). Khi $p$
+nhỏ, khối có một lỗi xuất hiện nhiều hơn hẳn khối có hai, ba lỗi, nên một mã
+sửa được một lỗi trong mỗi khối đã xử lý được phần lớn các khối bị lỗi.
 \end{ketluan}
 
 \mucnho{2) Ý tưởng thêm bit dư}
@@ -112,22 +117,14 @@ và mục~\ref{sec:2.6}).
                 độc lập. Việc bit này bị lỗi không ảnh hưởng đến xác suất lỗi
                 của bit tiếp theo.
         \end{itemize}
-  \Needspace{9\baselineskip}
-  \item Gọi $p$ là xác suất lỗi bit, với điều kiện $0 \le p \le 0{,}5$. Khả
-        năng truyền tin được mô tả qua các xác suất điều kiện sau:
+  \item Gọi $p$ là xác suất lỗi bit, với điều kiện $0 \le p \le 0{,}5$. Với
+        cả hai giá trị $x \in \{0, 1\}$ của bit phát, bit nhận được sai với
+        xác suất $p$ và đúng với xác suất $1 - p$:
+        \[
+          \Pr(Y \neq x \mid X = x) = p, \qquad
+          \Pr(Y = x \mid X = x) = 1 - p .
+        \]
 \end{itemize}
-\begin{center}\small\renewcommand{\arraystretch}{1.25}
-\begin{tabular}{|l|l|l|}
-\hline
- & \textbf{Xác suất} & \textbf{Ý nghĩa}\\ \hline
-\multirow{2}{*}{Truyền sai (có lỗi)}
-  & $\Pr(Y=1 \mid X=0) = p$   & phát $0$ nhưng nhận $1$\\
-  & $\Pr(Y=0 \mid X=1) = p$   & phát $1$ nhưng nhận $0$\\ \hline
-\multirow{2}{*}{Truyền đúng (không lỗi)}
-  & $\Pr(Y=0 \mid X=0) = 1-p$ & phát $0$ và nhận đúng $0$\\
-  & $\Pr(Y=1 \mid X=1) = 1-p$ & phát $1$ và nhận đúng $1$\\ \hline
-\end{tabular}
-\end{center}
 
 \begin{luuy}
 Nếu $p > 0{,}5$ thì chỉ cần đảo mọi bit nhận được; khi
@@ -135,6 +132,18 @@ Nếu $p > 0{,}5$ thì chỉ cần đảo mọi bit nhận được; khi
 hơn. Vì vậy chỉ cần xét $0 \le p \le 0{,}5$ (BSC sẽ được dùng lại ở
 Chương~\ref{chap:5} để tính BER).
 \end{luuy}
+
+Vì các bit bị lỗi độc lập với cùng xác suất $p$, xác suất để một khối $n$ bit
+có đúng $j$ bit lỗi là $\binom{n}{j} p^j (1-p)^{n-j}$. Với $p > 0$, tỉ số giữa
+xác suất có đúng một lỗi và xác suất có đúng hai lỗi là
+\[
+  \frac{n p (1-p)^{n-1}}{\binom{n}{2} p^2 (1-p)^{n-2}}
+  = \frac{2(1-p)}{(n-1)p} .
+\]
+Với khối $7$ bit, tỉ số này bằng $\dfrac{1-p}{3p}$: khoảng $33$ lần khi
+$p = 0{,}01$ nhưng chỉ còn $3$ lần khi $p = 0{,}1$. Đây là cơ sở định lượng cho
+kết luận ở phần~1: mã sửa một lỗi trong mỗi khối chỉ hiệu quả khi $p$ nhỏ, và
+với cùng $p$, khối càng dài thì tỉ số này càng giảm.
 
 Mỗi khối dữ liệu và mỗi từ mã là một dãy bit $0$, $1$. Để mô tả chính xác quy
 tắc tính bit kiểm tra cũng như việc phát hiện và sửa lỗi bằng công cụ của đại
@@ -206,16 +215,23 @@ hoặc $1$).
         các bit kiểm tra lỗi, có độ dài là $n$ ($n > k$). Từ mã $c$ là một
         phần tử thuộc không gian con $C$:
         $c = (c_1, c_2, \dots, c_n) \in C \subset \GFn{n}$.
-  \item Dạng tổng quát của ma trận tạo mã $G$ (kích thước $k \times n$):
-\[
-  G = \begin{bmatrix}
-        g_{11} & g_{12} & \cdots & g_{1n}\\
-        g_{21} & g_{22} & \cdots & g_{2n}\\
-        \vdots & \vdots & \ddots & \vdots\\
-        g_{k1} & g_{k2} & \cdots & g_{kn}
-      \end{bmatrix}.
-\]
 \end{itemize}
+
+Theo đại số tuyến tính, một không gian con $k$ chiều $C$ của $\GFn{n}$ có thể
+được mô tả theo hai cách, và báo cáo dùng cả hai:
+\begin{itemize}
+  \item \emph{bằng một cơ sở:} $k$ vectơ độc lập tuyến tính sinh ra $C$, xếp
+        thành $k$ hàng của \emph{ma trận tạo mã} $G$ cỡ $k \times n$; mỗi từ
+        mã là một tổ hợp tuyến tính $c = uG$ của các hàng này
+        (mục~\ref{sec:1.5});
+  \item \emph{bằng một hệ phương trình tuyến tính thuần nhất:} $n - k$ phương
+        trình độc lập mà mọi từ mã phải thỏa, với các hệ số xếp thành $n - k$
+        hàng của \emph{ma trận kiểm tra} $H$ cỡ $(n-k) \times n$; khi đó
+        $C = \{\, c \in \GFn{n} : c\HT = 0 \,\}$ và $\dim C = n - \rank H$
+        (mục~\ref{sec:1.6}; với mã $(7,4)$, chứng minh ở mục~\ref{sec:2.2}).
+\end{itemize}
+Cách thứ nhất dùng để mã hóa, cách thứ hai dùng để kiểm tra và sửa lỗi; mọi
+phép tính trong cả hai cách đều thực hiện trên $\GF$.
 
 % =====================================================================
 \section{Khoảng cách Hamming và khả năng phát hiện, sửa lỗi}
@@ -290,6 +306,7 @@ Mã có khoảng cách tối thiểu $\dmin$
 \end{enumerate}
 \end{dinhly}
 \begin{proof}
+
 (a) Nếu $r = c \xor e$ với $1 \le \wt{e} \le \dmin - 1$ thì
 $r \neq c$ (vì $e \neq 0$). Nếu $r$ cũng là một từ mã thì $r$ và $c$ là hai từ
 mã phân biệt với $\dist{c}{r} = \wt{e} < \dmin$, trái với định nghĩa của
@@ -297,8 +314,8 @@ $\dmin$. Vậy $r$ không là từ mã và lỗi được phát hiện.
 
 (b) Giả sử $\wt{e} \le t$, tức $\dist{r}{c} \le t$. Vì
 $t = \lfloor (\dmin - 1)/2 \rfloor$ nên $2t + 1 \le \dmin$. Với mọi từ mã
-$c' \neq c$, theo bất đẳng thức tam giác,
-$\dist{r}{c'} \ge \dist{c}{c'} - \dist{r}{c} \ge \dmin - t \ge t + 1
+$\tilde{c} \neq c$, theo bất đẳng thức tam giác,
+$\dist{r}{\tilde{c}} \ge \dist{c}{\tilde{c}} - \dist{r}{c} \ge \dmin - t \ge t + 1
 > \dist{r}{c}$. Vậy $c$ là từ mã gần $r$ nhất và là duy nhất, nên bộ giải mã
 chọn từ mã gần nhất sẽ khôi phục đúng $c$.
 \end{proof}
@@ -374,6 +391,12 @@ trị nhỏ nhất bằng nhau.
           \item tốc độ mã $R = \dfrac{k}{n} = \dfrac{4}{7} \approx 0{,}571$
                 (tỉ lệ thông tin hữu ích trên tổng dung lượng truyền).
         \end{itemize}
+  \item Các thông số trên chưa xác định được mã: có nhiều mã khối tuyến tính
+        $(7,4)$ khác nhau, và không phải mã nào cũng sửa được lỗi. Mã Hamming
+        là mã mà ba bit kiểm tra được chọn sao cho bảy cột của ma trận kiểm
+        tra $H$ là bảy vectơ khác $0$, đôi một khác nhau của $\GFn{3}$
+        (mục~\ref{sec:1.6}); nhờ đó mỗi lỗi đơn cho một hội chứng riêng và
+        $\dmin = 3$ (mục~\ref{sec:2.3} và~\ref{sec:2.4}).
   \item Tốc độ mã cho biết cái giá của khả năng sửa lỗi: cứ $7$ bit truyền đi
         thì chỉ $4$ bit mang thông tin. Mã lặp ba lần sửa được một lỗi trong
         mỗi khối $3$ bit nhưng chỉ có $R = 1/3$ (xem Lời mở đầu); mã Hamming
@@ -439,11 +462,12 @@ trong đó các bit kiểm tra được tính (cộng modulo~2) bởi
 
 Cách sắp xếp này tương đương với Hamming cổ điển, chỉ khác nhau ở thứ tự các
 cột; để dễ trình bày, báo cáo dùng dạng hệ thống (dữ liệu trước, kiểm tra
-sau). Nếu $c_{\text{cổ điển}} = (c_1, \dots, c_7)$ thì
+sau). Nếu $c_{\text{cổ điển}} = (c_1, \dots, c_7)$ là một từ mã ở dạng cổ
+điển thì từ mã ở dạng hệ thống tương ứng là
 \begin{equation}\label{eq:hoanvi-1}
-  c_{\text{hệ thống}} = (c_3,\,c_5,\,c_6,\,c_7,\,c_1,\,c_2,\,c_4);
+  c_{\text{hệ thống}} = (c_3,\,c_5,\,c_6,\,c_7,\,c_1,\,c_2,\,c_4)
 \end{equation}
-xem mục~\ref{sec:2.6}.
+(xem mục~\ref{sec:2.6}).
 
 \begin{vidu}\label{vd:G}
 Với mã Hamming $(7,4)$, ma trận phần kiểm tra $P$ có bốn hàng $110$, $101$,
@@ -518,7 +542,15 @@ Ký hiệu $h_j$ là cột thứ $j$ của $H$, viết dưới dạng hàng ba t
   h_5 = \vt{1,0,0},\quad h_6 = \vt{0,1,0},\quad h_7 = \vt{0,0,1}.
 \end{gather*}
 Bảy cột của $H$ là bảy vectơ khác $0$, đôi một khác nhau của $\GFn{3}$ (lý do
-xem mục~\ref{sec:2.3}).
+xem mục~\ref{sec:2.3}). Vì $\GFn{3}$ có đúng $2^3 - 1 = 7$ vectơ khác $0$ nên
+$H$ dùng hết các vectơ này, mỗi vectơ đúng một lần. Đây là đặc điểm phân biệt
+mã Hamming với một mã tuyến tính $(7,4)$ bất kỳ. Chẳng hạn, nếu đổi hàng đầu
+của $P$ từ $110$ thành $100$ thì vẫn được một mã tuyến tính $(7,4)$, nhưng khi
+đó $h_1 = h_5 = (1,0,0)$: lỗi ở bit $1$ và lỗi ở bit $5$ cho cùng một hội chứng
+nên không phân biệt được, và $1000100$ là từ mã trọng số $2$, tức $\dmin = 2$.
+Tổng quát, mã Hamming với $m$ bit kiểm tra có ma trận kiểm tra nhận tất cả
+$2^m - 1$ vectơ khác $0$ của $\GFn{m}$ làm cột, nên có độ dài $n = 2^m - 1$ và
+$k = n - m$ bit dữ liệu; $m = 3$ cho mã $(7,4)$.
 
 \begin{itemize}
   \item \emph{Vai trò trong giải mã và phát hiện lỗi:}
@@ -548,7 +580,7 @@ $H$ chính là bảy hội chứng khác nhau, tương ứng với bảy vị tr
 \hline
 \textbf{Hội chứng} $s = (s_1, s_2, s_3)$ & \textbf{Cột của $H$} &
 \textbf{Vị trí bit lỗi}\\ \hline
-$(0,0,0)$ & -- & không có lỗi (không sửa)\\ \hline
+$(0,0,0)$ & -- & không phát hiện lỗi (không sửa)\\ \hline
 $(1,1,0)$ & $h_1$ & vị trí 1\\ \hline
 $(1,0,1)$ & $h_2$ & vị trí 2\\ \hline
 $(0,1,1)$ & $h_3$ & vị trí 3\\ \hline
@@ -600,13 +632,10 @@ từ mã cũng thỏa $c\HT = 0$.
 \section{Bảng 16 từ mã}
 \label{sec:1.7}
 
-Vì mã Hamming $(7,4)$ có độ dài khối dữ liệu $k = 4$, nên tổng số các chuỗi dữ
-liệu khác nhau có thể tạo ra là $2^4 = 16$ trường hợp (từ $0000$ đến $1111$).
-Hai dữ liệu khác nhau cho hai từ mã khác nhau (mục~\ref{sec:1.5}), nên mã có
-đúng $\lvert C \rvert = 2^4 = 16$ từ mã. Ứng dụng công thức mã hóa $c = uG$
-(với ma trận tạo mã $G$ ở dạng hệ thống), ta thu được toàn bộ $16$ từ mã hợp lệ
-của mã Hamming $(7,4)$ như Bảng~\ref{tab:16tuma}. Cột ``Từ mã'' ghi $4$ bit dữ liệu, một khoảng trống, rồi
-$3$ bit kiểm tra.
+Mã Hamming $(7,4)$ có $\lvert C \rvert = 2^4 = 16$ từ mã, mỗi từ mã ứng với
+đúng một vectơ dữ liệu $u$ từ $0000$ đến $1111$ (mục~\ref{sec:1.5}). Tính
+$c = uG$ cho từng $u$, ta được Bảng~\ref{tab:16tuma}. Cột ``Từ mã'' ghi $4$ bit
+dữ liệu, một khoảng trống, rồi $3$ bit kiểm tra.
 
 \begin{table}[H]
 \centering\small\renewcommand{\arraystretch}{1.1}
@@ -632,7 +661,9 @@ $3$ bit kiểm tra.
 Phân bố trọng số: một từ mã trọng số $0$, bảy từ mã trọng số $3$, bảy từ mã
 trọng số $4$ và một từ mã trọng số $7$. Theo Mệnh đề~\ref{md:dmin-trongso},
 trọng số nhỏ nhất khác $0$ là $3$, nên $\dmin = 3$ (kiểm tra trực tiếp trên
-bảng; chứng minh không cần liệt kê ở mục~\ref{sec:2.4}).
+bảng; chứng minh không cần liệt kê ở mục~\ref{sec:2.4}). Bảng này còn được
+dùng để đối chiếu các ví dụ ở Chương~\ref{chap:3} và để suy ra trọng số các từ
+mã của mã mở rộng (mục~\ref{ss:2.7.2}).
 
 % =====================================================================
 \section{Phát hiện và sửa lỗi bằng hội chứng}

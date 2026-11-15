@@ -88,6 +88,15 @@
 %   u. 3.5 dẫn chiếu Bảng chế độ giải mã (tab:chedo, mục 2.5.2).
 %   v. 3.7, câu cuối: "các hàm mã hóa và giải mã" (kênh nhiễu channel.py
 %      chưa cùng kiểu dữ liệu với text_codec.py, xem review lần 3).
+%
+%  Chỉnh 15/11/2026 (tối) theo bản nhận xét Chương 3
+%  (claude/phan_hoi_nhan_xet_chuong3_2026-11-15):
+%   w. giảm phần nhắc lại lý thuyết: 3.1 (bỏ diễn giải vai trò của G, H; hai
+%      ma trận đặt chung một dòng), 3.2.1 (gộp), 3.4 (bỏ hai câu lặp nội dung
+%      Bảng 3.1), 3.6 (hội chứng của ví dụ hai lỗi dẫn về 3.5; ví dụ một lỗi
+%      dùng s = h_7; bỏ danh sách bốn trường hợp (s, q) vì trùng Bảng 2.3).
+%   x. cuối 3.7: Bảng tổng kết các tình huống đã xét (tab:tongket) thay cho
+%      sơ đồ được đề nghị (quy trình đã có ở Hình 1.1 và Hình 4.1).
 % =====================================================================
 \chapter{VÍ DỤ TẠO MÃ, KIỂM TRA LỖI VÀ SỬA LỖI}
 \label{chap:3}
@@ -106,42 +115,20 @@ Chương~\ref{chap:1}.
 \label{sec:3.1}
 
 Nhằm thuận tiện cho việc đối chiếu và kiểm tra các bước tính toán, chương này
-thống nhất sử dụng vectơ dữ liệu đầu vào $u = 1011$ làm ví dụ xuyên suốt.
-
-\begin{itemize}
-  \item Ma trận tạo mã $G$ (công thức~\eqref{eq:G} ở mục~\ref{sec:1.5}; giải
-        thích ở mục~\ref{sec:2.1}) được sử dụng
-        để biến đổi vectơ dữ liệu gồm $4$ bit thành từ mã gồm $7$ bit theo quy
-        tắc mã Hamming $(7,4)$. Ma trận tạo mã được lựa chọn theo quy ước mã
-        hóa của nhóm như sau:
-        \[
-          G = \MatG .
-        \]
-  \item Ma trận kiểm tra $H$ (công thức~\eqref{eq:H} ở mục~\ref{sec:1.6};
-        giải thích ở mục~\ref{sec:2.2}) được sử dụng
-        để thiết lập các phương trình kiểm tra chẵn lẻ. Thông qua việc tính
-        hội chứng của vectơ nhận được, ma trận này cho phép phát hiện lỗi; khi
-        có nhiều nhất một bit lỗi, hội chứng khác $0$ trùng với đúng một cột
-        của $H$ và chỉ ra vị trí bit lỗi. Với từ hai bit lỗi trở lên, hội chứng
-        không còn chỉ đúng vị trí lỗi (mục~\ref{sec:3.5}). Ma trận kiểm tra được lựa chọn như sau:
-        \[
-          H = \MatH .
-        \]
-\end{itemize}
-
-Trong toàn bộ ví dụ, các phép tính được thực hiện trên trường nhị phân $\GF$:
-phép cộng là cộng modulo~$2$, tức phép XOR, ký hiệu $\xor$ (bảng cộng ở
-mục~\ref{sec:1.2}).
-
-Hai ma trận được dùng nhất quán vì $G\HT = 0$ (Mệnh đề~\ref{md:GHT}). Do đó,
-nếu $c = uG$ là từ mã được tạo đúng theo $G$ thì $c\HT = 0$.
-Cần giữ nguyên thứ tự các cột và thứ tự các bit hội chứng trong mọi phép tính;
-nếu đổi quy ước đánh số bit, bảng hội chứng ở mục~\ref{sec:1.6}
-(Bảng~\ref{tab:hoichung}) cũng phải được đổi theo.
-
-Thứ tự các cột của ma trận $H$ tương ứng với thứ tự các bit trong từ mã; quy
-ước hệ thống $[\,I_4 \mid P\,]$ được nêu ở mục~\ref{ss:3.2.1} và giữ cố định khi
-tính hội chứng, xác định vị trí lỗi và thực hiện sửa lỗi.
+thống nhất sử dụng vectơ dữ liệu đầu vào $u = 1011$ làm ví dụ xuyên suốt. Mọi
+phép tính dùng ma trận tạo mã $G$ (công thức~\eqref{eq:G}, mục~\ref{sec:1.5}) và
+ma trận kiểm tra $H$ (công thức~\eqref{eq:H}, mục~\ref{sec:1.6}) ở dạng hệ
+thống, nhắc lại ở đây để tiện đối chiếu:
+\[
+  G = \MatG , \qquad H = \MatH .
+\]
+Các phép tính được thực hiện trên $\GF$, phép cộng là phép XOR, ký hiệu $\xor$
+(mục~\ref{sec:1.2}). Vì $G\HT = 0$ (Mệnh đề~\ref{md:GHT}), mọi từ mã $c = uG$
+thỏa $c\HT = 0$. Khi vectơ nhận được có nhiều nhất một bit lỗi, hội chứng khác
+$0$ trùng với đúng một cột của $H$ và chỉ ra vị trí bit lỗi
+(Bảng~\ref{tab:hoichung}); với từ hai bit lỗi trở lên, hội chứng không còn chỉ
+đúng vị trí lỗi (mục~\ref{sec:3.5}). Thứ tự các cột của $H$ ứng với thứ tự các
+bit trong từ mã (mục~\ref{ss:3.2.1}) và được giữ cố định trong mọi phép tính.
 
 % ---------------------------------------------------------------------
 \section{Tạo mã bằng mã Hamming (7,4)}
@@ -150,17 +137,10 @@ tính hội chứng, xác định vị trí lỗi và thực hiện sửa lỗi.
 \subsection{Quy ước sắp xếp các bit}
 \label{ss:3.2.1}
 
-Nhóm sử dụng dạng mã Hamming hệ thống $[\,I_4 \mid P\,]$, trong đó bốn bit dữ
-liệu được đặt trước và ba bit kiểm tra được đặt phía sau. Với quy ước đánh số
-từ trái sang phải, các vị trí bit được sắp xếp như sau:
-\begin{itemize}
-  \item vị trí $1, 2, 3, 4$: các bit dữ liệu $(u_1, u_2, u_3, u_4)$;
-  \item vị trí $5, 6, 7$: các bit kiểm tra $(p_1, p_2, p_3)$.
-\end{itemize}
-Do đó, từ mã có dạng
-\[
-  c = (u_1\,u_2\,u_3\,u_4\,p_1\,p_2\,p_3) .
-\]
+Nhóm sử dụng dạng hệ thống $[\,I_4 \mid P\,]$ (hộp quy ước ở đầu
+Chương~\ref{chap:1}). Đánh số từ trái sang phải, các vị trí $1$ đến $4$ là bốn
+bit dữ liệu $(u_1, u_2, u_3, u_4)$, các vị trí $5$, $6$, $7$ là ba bit kiểm tra
+$(p_1, p_2, p_3)$, tức $c = (u_1\,u_2\,u_3\,u_4\,p_1\,p_2\,p_3)$.
 
 \subsection{Phương pháp tính các bit kiểm tra}
 \label{ss:3.2.2}
@@ -208,6 +188,7 @@ mục~\ref{ss:2.1.2} và STT~$12$ của Bảng~\ref{tab:16tuma}. Qua đó kiểm
 tạo mã.
 
 % ---------------------------------------------------------------------
+\Needspace{8\baselineskip}
 \section{Kiểm tra từ mã không có lỗi}
 \label{sec:3.3}
 
@@ -281,10 +262,8 @@ lại cho kết quả $\hat{c}\HT = (0,0,0)$, với $\hat{c}$ là từ mã sau s
 đầu của $\hat{c}$, ta được $1011$, đúng bằng dữ liệu ban đầu $u$. Vì bit thứ năm
 là bit kiểm tra $p_1$, bốn bit dữ liệu trong vectơ nhận được vẫn đúng; tuy
 nhiên, bộ giải mã không biết trước vị trí lỗi nên vẫn thực hiện đủ quy trình
-như với mọi lỗi đơn khác. Ví dụ này minh họa quy
-trình sửa lỗi đơn (mục~\ref{sec:1.8}): tính hội chứng, đối chiếu với cột của $H$
-để tìm vị trí sai, đảo bit tương ứng, kiểm tra lại kết quả và lấy bốn bit dữ
-liệu. Bảng~\ref{tab:motloi} tóm tắt toàn bộ các bước.
+như với mọi lỗi đơn khác. Bảng~\ref{tab:motloi} tóm tắt các bước, theo đúng quy
+trình ở mục~\ref{sec:1.8}.
 
 \begin{table}[H]
 \centering\small\renewcommand{\arraystretch}{1.1}
@@ -303,9 +282,6 @@ Kiểm tra lại & $s = \hat{c}\HT$ & $(0,0,0)$ & Từ mã sau sửa thỏa mãn
 Giải mã & Lấy bốn bit đầu của $\hat{c}$ & $1011$ & Khôi phục đúng dữ liệu $u$\\ \hline
 \end{tabular}
 \end{table}
-
-Qua Bảng~\ref{tab:motloi}, có thể thấy hội chứng đóng vai trò như dấu hiệu chỉ
-vị trí lỗi trong trường hợp một lỗi đơn.
 
 Nếu lỗi rơi vào một bit dữ liệu thì dữ liệu đọc trực tiếp từ $r$ bị sai, và
 bước sửa lỗi mới là bước khôi phục dữ liệu. Chẳng hạn, đảo bit thứ ba của $c$
@@ -395,53 +371,30 @@ mục~\ref{ss:2.7.4}). Phía nhận thu được
 \[
   r = (1,1,1,1,1,1,0,0) = 11111100 .
 \]
-Hội chứng tính trên bảy bit đầu được xác định như sau:
-\begin{align*}
-  s_1 &= r_1 \xor r_2 \xor r_4 \xor r_5 = 1 \xor 1 \xor 1 \xor 1 = 0,\\*
-  s_2 &= r_1 \xor r_3 \xor r_4 \xor r_6 = 1 \xor 1 \xor 1 \xor 1 = 0,\\*
-  s_3 &= r_2 \xor r_3 \xor r_4 \xor r_7 = 1 \xor 1 \xor 1 \xor 0 = 1 .
-\end{align*}
-Do đó $s = (0,0,1)$. Kiểm tra chẵn lẻ tổng thể:
+Bảy bit đầu của $r$ chính là vectơ $1111110$ ở mục~\ref{sec:3.5}, nên hội
+chứng tính trên bảy bit đầu vẫn là $s = (0,0,1)$. Kiểm tra chẵn lẻ tổng thể:
 \[
   q = 1 \xor 1 \xor 1 \xor 1 \xor 1 \xor 1 \xor 0 \xor 0 = 0 .
 \]
-Như vậy, $s \neq 0$ và $q = 0$. Trong giả thiết có không quá hai lỗi bit, đây
-là dấu hiệu phát hiện hai lỗi. Bộ giải mã không được tự động đảo một bit theo
-bảng hội chứng đơn lỗi.
-
-Khi giả định số lỗi không vượt quá hai, có thể phân loại các trường hợp chính
-như sau (xem bảng phân loại, Bảng~\ref{tab:84} ở mục~\ref{ss:2.7.3}):
-\begin{itemize}
-  \item $s = 0$, $q = 0$: không phát hiện lỗi, tức không có lỗi (trong giả
-        thiết trên);
-  \item $s \neq 0$, $q = 1$: lỗi đơn ở một trong bảy bit đầu;
-  \item $s = 0$, $q = 1$: lỗi ở bit thứ tám;
-  \item $s \neq 0$, $q = 0$: phát hiện hai lỗi bit, không tự động sửa.
-\end{itemize}
-Vì vậy, mã Hamming mở rộng $(8,4)$ thường được mô tả là SEC-DED: sửa một lỗi
-đơn và phát hiện hai lỗi. Bit kiểm tra tổng thể bổ sung giúp phân biệt lỗi đơn
-với lỗi kép trong phạm vi giả thiết nói trên; nó không biến mã thành phương pháp
-có thể sửa hai lỗi.
+Như vậy, $s \neq 0$ và $q = 0$. Theo Bảng~\ref{tab:84} (với giả thiết khối nhận
+được có không quá hai bit lỗi), đây là trường hợp phát hiện hai lỗi: bộ giải mã
+báo lỗi và không đảo bit nào theo bảng hội chứng đơn lỗi. Vì vậy, mã Hamming mở
+rộng $(8,4)$ được gọi là SEC-DED: sửa một lỗi đơn và phát hiện hai lỗi. Bit
+kiểm tra tổng thể không biến mã thành phương pháp có thể sửa hai lỗi.
 
 Để thấy rõ hơn vai trò của bit kiểm tra tổng thể, xét thêm trường hợp chỉ có
 bit thứ bảy của từ mã mở rộng $c' = 10110100$ bị đảo. Khi đó, phía nhận thu được
 \[
   r = 10110110 .
 \]
-Tính hội chứng trên bảy bit đầu, ta có:
-\begin{align*}
-  s_1 &= r_1 \xor r_2 \xor r_4 \xor r_5 = 1 \xor 0 \xor 1 \xor 0 = 0,\\*
-  s_2 &= r_1 \xor r_3 \xor r_4 \xor r_6 = 1 \xor 1 \xor 1 \xor 1 = 0,\\*
-  s_3 &= r_2 \xor r_3 \xor r_4 \xor r_7 = 0 \xor 1 \xor 1 \xor 1 = 1 .
-\end{align*}
-Do đó $s = (0,0,1)$. Kiểm tra chẵn lẻ tổng thể của tám bit:
+Chỉ có bit thứ bảy bị đảo nên, theo~\eqref{eq:hoichung},
+$s = h_7 = (0,0,1)$. Kiểm tra chẵn lẻ tổng thể của tám bit:
 \[
   q = 1 \xor 0 \xor 1 \xor 1 \xor 0 \xor 1 \xor 1 \xor 0 = 1 .
 \]
-Như vậy, $s = (0,0,1) \neq 0$ và $q = 1$. Hội chứng
-$(0,0,1)$ trùng với cột thứ bảy của $H$, đồng thời $q = 1$ cho biết có lỗi đơn.
-Vì vậy, xác định bit thứ bảy bị lỗi và đảo lại để khôi phục từ mã mở rộng ban
-đầu $c' = 10110100$.
+Như vậy, $s = (0,0,1) \neq 0$ và $q = 1$: theo Bảng~\ref{tab:84}, đây là một lỗi
+đơn trong bảy bit đầu. Hội chứng trùng với cột thứ bảy của $H$ nên bộ giải mã
+đảo bit thứ bảy và khôi phục từ mã mở rộng ban đầu $c' = 10110100$.
 
 So sánh với trường hợp hai lỗi ở vị trí thứ hai và thứ năm, ta cũng thu được hội
 chứng $s = (0,0,1)$, nhưng $q = 0$. Điều này cho thấy hai trường hợp có cùng hội
@@ -539,11 +492,41 @@ Byte và ký tự khôi phục & \multicolumn{2}{c|}{$01000001$ $\to$ A}\\ \hlin
 
 Ngược lại, nếu không thực hiện sửa lỗi, bốn bit dữ liệu đầu tiên của khối thứ
 nhất sẽ là $0110$. Khi ghép với nhóm $0001$, chuỗi nhận được là $01100001$,
-tương ứng với ký tự $\mathrm{a}$ viết thường. Qua ví dụ này, có thể thấy khi mỗi khối có nhiều nhất một bit sai thì việc sửa
-lỗi khôi phục đúng dữ liệu ban đầu. Nếu một khối có hai bit sai thì bộ giải mã
+tương ứng với ký tự $\mathrm{a}$ viết thường. Nếu một khối có hai bit sai thì bộ
+giải mã
 sửa nhầm như ở mục~\ref{sec:3.5}: chẳng hạn đảo đồng thời bit thứ hai và thứ năm
 của khối thứ nhất cho $0000001$, hội chứng $s = (0,0,1)$ trùng với cột thứ bảy
 của $H$, bộ giải mã đảo bit thứ bảy được $0000000$ và dữ liệu $0000$, nên byte
-nhận được là $00000001$ chứ không còn là ký tự $\mathrm{A}$. Các hàm mã hóa và
-giải mã ở Chương~\ref{chap:4} thực hiện đúng các bước tính này cho một chuỗi ký
-tự bất kỳ.
+nhận được là $00000001$ chứ không còn là ký tự $\mathrm{A}$.
+
+\mucnho{Tổng kết các tình huống đã xét}
+Bảng~\ref{tab:tongket} gom các tình huống của chương theo ba câu hỏi: phía nhận
+thấy gì, bộ giải mã làm gì và kết quả có đúng không.
+
+\begin{table}[H]
+\centering\small\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{4pt}
+\caption{Tổng kết các tình huống đã xét với $u = 1011$ và ký tự A}
+\label{tab:tongket}
+\begin{tabular}{|c|c|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{3.5cm}|}
+\hline
+\textbf{Mục} & \textbf{Mã} & \textbf{Lỗi trên kênh} & \textbf{Phía nhận thấy} &
+\textbf{Bộ giải mã} & \textbf{Kết quả}\\ \hline
+\ref{sec:3.3} & $(7,4)$ & không có lỗi & $s = 0$ & giữ nguyên $r$ & đúng: $1011$\\ \hline
+\ref{sec:3.3} & $(7,4)$ & ba lỗi: bit $1$, $5$, $6$ & $s = 0$ & giữ nguyên $r$ & sai, không phát hiện: $0011$\\ \hline
+\ref{sec:3.4} & $(7,4)$ & một lỗi: bit $5$ & $s = (1,0,0) = h_5$ & đảo bit $5$ & đúng: $1011$\\ \hline
+\ref{sec:3.4} & $(7,4)$ & một lỗi: bit $3$ & $s = (0,1,1) = h_3$ & đảo bit $3$ & đúng: $1011$\\ \hline
+\ref{sec:3.5} & $(7,4)$ & hai lỗi: bit $2$, $5$ & $s = (0,0,1) = h_7$ & đảo bit $7$ & sai, sửa nhầm: $1111$\\ \hline
+\ref{sec:3.6} & $(8,4)$ & hai lỗi: bit $2$, $5$ & $s = (0,0,1)$, $q = 0$ & báo hai lỗi, không sửa & phát hiện lỗi, không khôi phục dữ liệu\\ \hline
+\ref{sec:3.6} & $(8,4)$ & một lỗi: bit $7$ & $s = (0,0,1)$, $q = 1$ & đảo bit $7$ & đúng: $1011$\\ \hline
+\ref{sec:3.7} & $(7,4)$ & ký tự A, một lỗi: bit $3$ của khối 1 & khối 1: $s = (0,1,1)$; khối 2: $s = 0$ & đảo bit $3$ của khối 1 & đúng: A\\ \hline
+\ref{sec:3.7} & $(7,4)$ & ký tự A, hai lỗi: bit $2$, $5$ của khối 1 & khối 1: $s = (0,0,1)$; khối 2: $s = 0$ & đảo bit $7$ của khối 1 & sai: byte $00000001$\\ \hline
+\end{tabular}
+\end{table}
+
+Bảng cho thấy ba loại kết quả: sửa đúng, khi mỗi khối có nhiều nhất một bit
+lỗi; phát hiện nhưng không sửa, với mã $(8,4)$ khi có hai lỗi; và sai mà phía
+nhận không biết, với mã $(7,4)$ khi có từ hai lỗi trở lên. Hội chứng chỉ cho
+biết vectơ nhận được có phải là từ mã hay không, không cho biết số lỗi thực tế.
+Các hàm mã hóa và giải mã ở Chương~\ref{chap:4} thực hiện đúng các bước tính
+này cho một chuỗi ký tự bất kỳ.
