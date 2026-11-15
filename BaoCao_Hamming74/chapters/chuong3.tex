@@ -79,6 +79,15 @@
 %   r. 3.6: dòng (s = 000, q = 0) ghi "không có lỗi" trong giả thiết đã nêu.
 %   s. 3.7: nêu điều kiện "mỗi khối nhiều nhất một lỗi" ngay ở quy trình
 %      giải mã; chữ tiếng Việt có dấu "ở dạng dựng sẵn" chiếm 2 hoặc 3 byte.
+%
+%  Chỉnh 15/11/2026 cùng đợt sửa Chương 1--2 (review lần 3):
+%   t. 3.6: điều kiện viết s = 0 / s khác 0 như Chương 1 và Bảng 2.x (thay
+%      cho "000" ở mục b); dòng (s = 0, q = 0) ghi "không phát hiện lỗi, tức
+%      không có lỗi (trong giả thiết trên)" như mục 2.7.3; ba lỗi: mọi mẫu bị
+%      hiểu là lỗi đơn và bị sửa nhầm (mục 2.7.3).
+%   u. 3.5 dẫn chiếu Bảng chế độ giải mã (tab:chedo, mục 2.5.2).
+%   v. 3.7, câu cuối: "các hàm mã hóa và giải mã" (kênh nhiễu channel.py
+%      chưa cùng kiểu dữ liệu với text_codec.py, xem review lần 3).
 % =====================================================================
 \chapter{VÍ DỤ TẠO MÃ, KIỂM TRA LỖI VÀ SỬA LỖI}
 \label{chap:3}
@@ -349,7 +358,8 @@ rằng dữ liệu ban đầu đã được khôi phục đúng.
 Điều này không có nghĩa mã Hamming $(7,4)$ hoàn toàn không thể phát hiện hai
 lỗi. Do khoảng cách tối thiểu $\dmin = 3$, mã có khả năng phát hiện tối đa hai
 lỗi bit nếu chỉ kiểm tra tính hợp lệ của vectơ nhận được mà không tự động áp
-dụng quy tắc sửa lỗi đơn (Định lý~\ref{dl:phathien-sua}). Vấn đề nằm ở chỗ hội chứng của hai lỗi luôn
+dụng quy tắc sửa lỗi đơn (Định lý~\ref{dl:phathien-sua},
+Bảng~\ref{tab:chedo}). Vấn đề nằm ở chỗ hội chứng của hai lỗi luôn
 trùng với hội chứng của một lỗi đơn khác (xem mục~\ref{ss:2.5.3}). Vì vậy, cần
 phân biệt hai nhiệm vụ: phát hiện có lỗi và xác định chính xác số lượng, vị trí
 lỗi để sửa. Trong ví dụ này, chỉ với hội chứng $(0,0,1)$, bộ giải mã không phân
@@ -395,17 +405,18 @@ Do đó $s = (0,0,1)$. Kiểm tra chẵn lẻ tổng thể:
 \[
   q = 1 \xor 1 \xor 1 \xor 1 \xor 1 \xor 1 \xor 0 \xor 0 = 0 .
 \]
-Như vậy, $s \neq 000$ và $q = 0$. Trong giả thiết có không quá hai lỗi bit, đây
+Như vậy, $s \neq 0$ và $q = 0$. Trong giả thiết có không quá hai lỗi bit, đây
 là dấu hiệu phát hiện hai lỗi. Bộ giải mã không được tự động đảo một bit theo
 bảng hội chứng đơn lỗi.
 
 Khi giả định số lỗi không vượt quá hai, có thể phân loại các trường hợp chính
 như sau (xem bảng phân loại, Bảng~\ref{tab:84} ở mục~\ref{ss:2.7.3}):
 \begin{itemize}
-  \item $s = 000$, $q = 0$: không có lỗi (trong giả thiết trên);
-  \item $s \neq 000$, $q = 1$: lỗi đơn ở một trong bảy bit đầu;
-  \item $s = 000$, $q = 1$: lỗi ở bit thứ tám;
-  \item $s \neq 000$, $q = 0$: phát hiện hai lỗi bit, không tự động sửa.
+  \item $s = 0$, $q = 0$: không phát hiện lỗi, tức không có lỗi (trong giả
+        thiết trên);
+  \item $s \neq 0$, $q = 1$: lỗi đơn ở một trong bảy bit đầu;
+  \item $s = 0$, $q = 1$: lỗi ở bit thứ tám;
+  \item $s \neq 0$, $q = 0$: phát hiện hai lỗi bit, không tự động sửa.
 \end{itemize}
 Vì vậy, mã Hamming mở rộng $(8,4)$ thường được mô tả là SEC-DED: sửa một lỗi
 đơn và phát hiện hai lỗi. Bit kiểm tra tổng thể bổ sung giúp phân biệt lỗi đơn
@@ -427,7 +438,7 @@ Do đó $s = (0,0,1)$. Kiểm tra chẵn lẻ tổng thể của tám bit:
 \[
   q = 1 \xor 0 \xor 1 \xor 1 \xor 0 \xor 1 \xor 1 \xor 0 = 1 .
 \]
-Như vậy, $s = (0,0,1)$ và $q = 1$, tức $s \neq 000$ và $q = 1$. Hội chứng
+Như vậy, $s = (0,0,1) \neq 0$ và $q = 1$. Hội chứng
 $(0,0,1)$ trùng với cột thứ bảy của $H$, đồng thời $q = 1$ cho biết có lỗi đơn.
 Vì vậy, xác định bit thứ bảy bị lỗi và đảo lại để khôi phục từ mã mở rộng ban
 đầu $c' = 10110100$.
@@ -460,8 +471,8 @@ Hai lỗi ở bit $2$ và $5$ &
 
 Cái giá của khả năng này là một bit kiểm tra bổ sung: tốc độ mã giảm từ $4/7$
 xuống $4/8$ (so sánh đầy đủ hai mã ở Bảng~\ref{tab:sosanh}). Ngoài ra, cách phân
-loại trên chỉ được bảo đảm khi có không quá hai lỗi; từ ba lỗi trở lên, bộ giải
-mã có thể phân loại sai (mục~\ref{ss:2.7.3}).
+loại trên chỉ được bảo đảm khi có không quá hai lỗi; với ba lỗi, mọi mẫu đều bị
+hiểu là một lỗi đơn và bị sửa nhầm (mục~\ref{ss:2.7.3}).
 
 % ---------------------------------------------------------------------
 \section{Áp dụng cho một ký tự}
@@ -533,5 +544,6 @@ lỗi khôi phục đúng dữ liệu ban đầu. Nếu một khối có hai bit
 sửa nhầm như ở mục~\ref{sec:3.5}: chẳng hạn đảo đồng thời bit thứ hai và thứ năm
 của khối thứ nhất cho $0000001$, hội chứng $s = (0,0,1)$ trùng với cột thứ bảy
 của $H$, bộ giải mã đảo bit thứ bảy được $0000000$ và dữ liệu $0000$, nên byte
-nhận được là $00000001$ chứ không còn là ký tự $\mathrm{A}$. Chương trình ở
-Chương~\ref{chap:4} thực hiện đúng các bước tính này cho một chuỗi ký tự bất kỳ.
+nhận được là $00000001$ chứ không còn là ký tự $\mathrm{A}$. Các hàm mã hóa và
+giải mã ở Chương~\ref{chap:4} thực hiện đúng các bước tính này cho một chuỗi ký
+tự bất kỳ.

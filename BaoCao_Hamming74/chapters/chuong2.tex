@@ -22,6 +22,20 @@
 %      2.5.3 (k khác i, j; câu chú giải Hình 2.1); 2.6.2 (j = s1 + 2 s2 + 4 s3
 %      là cộng số nguyên); 2.7.2 (mã mở rộng tuyến tính nên dùng Mệnh đề 1.2).
 %    - chỉ số đề mục x.y.z dùng \subsection (đã có sẵn trong settings.tex).
+%  Chỉnh 15/11/2026 theo review lần 3 (claude/review_chuong1-3_lan3):
+%    - 2.7.3: chứng minh bảng phân loại đầy đủ khi có <= 2 lỗi (SEC-DED);
+%      lập luận cho 56 mẫu ba lỗi (49 + 7) và 14 mẫu bốn lỗi; cột "Hành động";
+%    - 2.7.2: C' (định nghĩa bằng H') trùng tập từ mã mở rộng ở 2.7.1;
+%    - 2.5.1: các quả cầu rời nhau, bỏ đoạn nhắc lại (GF(2), H, rank, dim);
+%      2.5.2: Bảng chế độ giải mã (tab:chedo); 2.5.3: s khác 0, c' -> c^
+%      (c' chỉ dùng cho từ mã mở rộng), liên hệ tính hoàn hảo; Hình 2.1 vẽ
+%      lại bằng TikZ (file images/hinh_2_1_qua_cau_hamming.png không dùng nữa);
+%    - 2.1.1: vì sao đưa được về [I4 | P]; 2.3.3: phép đếm 2^3 - 1 - 3 = 4;
+%      2.4.2: hai vectơ khác 0 phụ thuộc <=> bằng nhau; Định lý 2.2 phát biểu
+%      cho mã bất kỳ, không dựa vào Mệnh đề 2.1; 2.6.1: bảng đối chiếu vị trí;
+%    - ký hiệu: s = 0 / s khác 0 (bỏ "000", "= 101"); thuật ngữ "phía nhận",
+%      "đảo bit", "sửa nhầm", "vectơ nhận được"; Bảng 2.3 thêm tốc độ mã, số
+%      lỗi phát hiện tối đa 2/3; bỏ câu lặp ở 2.7.4; câu nối sang Chương 3.
 % =====================================================================
 \chapter{GIẢI THÍCH CƠ SỞ LÝ THUYẾT CỦA G, H VÀ MỞ RỘNG SANG MÃ (8,4)}
 \label{chap:2}
@@ -51,9 +65,12 @@ tại các vị trí đó:
 \subsection{Chứng minh ma trận tạo mã \texorpdfstring{$G$}{G} có dạng \texorpdfstring{$[I_4 \mid P]$}{[I4 | P]}}
 \label{ss:2.1.1}
 
-Mọi ma trận tạo mã hạng $4$ đều đưa được về dạng $[\,I_4 \mid P\,]$ bằng biến
-đổi hàng (không đổi mã) và hoán vị cột (mã tương đương). Nhờ khối $I_4$, $4$
-bit đầu của từ mã chính là dữ liệu. Ma trận tạo mã $G$ dạng chuẩn được cấu tạo
+Mọi ma trận tạo mã $4 \times 7$ hạng $4$ đều đưa được về dạng
+$[\,I_4 \mid P\,]$. Thật vậy, vì hạng bằng $4$ nên có $4$ cột độc lập tuyến
+tính; hoán vị cột để đưa $4$ cột này lên đầu (được một mã tương đương, chỉ khác
+thứ tự vị trí bit), khi đó khối $4 \times 4$ đầu tiên khả nghịch, và các phép
+biến đổi hàng (không làm đổi tập từ mã vì không đổi không gian hàng) biến khối
+này thành $I_4$. Nhờ khối $I_4$, $4$ bit đầu của từ mã chính là dữ liệu. Ma trận tạo mã $G$ dạng chuẩn được cấu tạo
 bằng cách ghép hai ma trận thành phần: ma trận đơn vị $I_4$ (kích thước
 $4 \times 4$) nằm ở bên trái và ma trận phần kiểm tra $P$ (kích thước
 $4 \times 3$) nằm ở bên phải.
@@ -174,13 +191,13 @@ cột nào trùng nhau xuất phát từ hai yêu cầu cốt lõi của hệ th
 \subsection{Tại sao không được có cột bằng 0?}
 \label{ss:2.3.1}
 
-Nếu cột thứ $i$ của $H$ là vectơ không $(0,0,0)$, giả sử nhiễu làm lật bit ở vị
+Nếu cột thứ $i$ của $H$ là vectơ không $(0,0,0)$, giả sử nhiễu làm đảo bit ở vị
 trí thứ $i$ (vectơ lỗi $e$ chỉ có bit $1$ tại vị trí $i$), thì theo
-\eqref{eq:tongcot} vectơ hội chứng tính được tại máy thu là
+\eqref{eq:tongcot} vectơ hội chứng tính được ở phía nhận là
 \[
   s = e\HT = h_i = (0,0,0) .
 \]
-Máy thu thấy $s = (0,0,0)$ sẽ kết luận nhầm rằng không có lỗi xảy ra, làm cho
+Phía nhận thấy $s = (0,0,0)$ sẽ kết luận nhầm rằng không có lỗi xảy ra, làm cho
 hệ thống hoàn toàn ``mù'' trước sai sót ở vị trí này. Do đó, mọi cột của $H$
 bắt buộc phải khác vectơ $0$.
 
@@ -189,7 +206,7 @@ bắt buộc phải khác vectơ $0$.
 
 Giả sử hai cột thứ $i$ và thứ $j$ trùng nhau ($h_i = h_j$). Khi xảy ra lỗi $1$
 bit ở vị trí $i$ hoặc vị trí $j$, cả hai trường hợp lỗi này đều sinh ra cùng một
-vectơ hội chứng $s = h_i = h_j$. Lúc này, máy thu phát hiện được có lỗi, nhưng
+vectơ hội chứng $s = h_i = h_j$. Lúc này, phía nhận phát hiện được có lỗi, nhưng
 không thể phân biệt được bit thứ $i$ hay bit thứ $j$ đang bị sai để đảo bit
 sửa lỗi. Do đó, các cột của $H$ bắt buộc phải đôi một khác nhau để bảo đảm mỗi
 vị trí lỗi đơn sinh ra một hội chứng duy nhất.
@@ -200,8 +217,11 @@ vị trí lỗi đơn sinh ra một hội chứng duy nhất.
 Ba cột cuối của $H$ là $(1,0,0)$, $(0,1,0)$, $(0,0,1)$; bốn cột đầu là bốn hàng
 của $P$. Để bảy cột khác $0$ và khác nhau, mỗi hàng của $P$ phải có ít nhất hai
 bit $1$ (các vectơ trọng số $1$ đã bị ba cột cuối chiếm) và bốn hàng phải khác
-nhau. Trong $\GFn{3}$ chỉ có đúng bốn vectơ như
-vậy: $110$, $101$, $011$, $111$, chính là $P$ ở mục~\ref{sec:2.1}.
+nhau. Đếm trong $\GFn{3}$: có $2^3 = 8$ vectơ, bỏ vectơ $0$ còn $7$, bỏ tiếp
+ba vectơ trọng số $1$ còn đúng bốn vectơ $110$, $101$, $011$, $111$, chính là
+bốn hàng của $P$ ở mục~\ref{sec:2.1} (chỉ có thể khác về thứ tự). Như vậy bảy
+cột của $H$ là \emph{toàn bộ} bảy vectơ khác $0$ của $\GFn{3}$; tính chất này
+được dùng lại ở mục~\ref{ss:2.5.3}.
 
 % =====================================================================
 \section{\texorpdfstring{$d_{\min} = 3$}{dmin = 3} suy trực tiếp từ \texorpdfstring{$H$}{H}}
@@ -212,11 +232,12 @@ vậy: $110$, $101$, $011$, $111$, chính là $P$ ở mục~\ref{sec:2.1}.
 
 \begin{dinhly}[Khoảng cách tối thiểu và ma trận kiểm tra]\label{dl:khoangcach}
 Khoảng cách Hamming tối thiểu $\dmin$ của một mã khối tuyến tính nhị phân đúng
-bằng số lượng cột nhỏ nhất trong ma trận kiểm tra $H$ phụ thuộc tuyến tính với
-nhau.
+bằng số cột ít nhất của một tập cột phụ thuộc tuyến tính trong ma trận kiểm tra
+$H$ của mã.
 \end{dinhly}
 \begin{proof}
-Một chuỗi $c$ là từ mã hợp lệ khi và chỉ khi $c\HT = 0$ (Mệnh đề~\ref{md:GHT}).
+Theo định nghĩa ma trận kiểm tra, một chuỗi $c$ là từ mã khi và chỉ khi
+$c\HT = 0$ (với mã $(7,4)$, đây là Mệnh đề~\ref{md:GHT}).
 Phép nhân này tương đương với việc lấy các cột của $H$ tại những vị trí có bit
 $1$ trong $c$ cộng lại với nhau, thu được kết quả bằng $0$
 (công thức~\eqref{eq:tongcot}). Do đó, một từ mã khác $0$ có $w$ bit $1$
@@ -239,8 +260,14 @@ $H$ có tổng bằng $0$.
         tuyến tính, suy ra $\dmin \ge 2$.
   \item Tất cả $7$ cột của $H$ là $7$ vectơ nhị phân $3$ bit khác nhau đôi một.
         Trên trường nhị phân $\GF$, hai vectơ khác $0$ phụ thuộc tuyến tính khi
-        và chỉ khi chúng bằng nhau. Vì không có $2$ cột nào trùng nhau, mọi tập
-        hợp gồm $2$ cột bất kỳ đều độc lập tuyến tính, suy ra $\dmin \ge 3$.
+        và chỉ khi chúng bằng nhau. Thật vậy, $a$ và $b$ phụ thuộc tuyến tính
+        khi có $\lambda, \mu \in \GF$ không đồng thời bằng $0$ với
+        $\lambda a \xor \mu b = 0$. Nếu $\mu = 0$ thì $\lambda = 1$ và
+        $a = 0$, trái giả thiết; tương tự $\lambda \neq 0$. Vậy
+        $\lambda = \mu = 1$, tức $a \xor b = 0$ hay $a = b$; ngược lại, nếu
+        $a = b$ thì $a \xor b = 0$. Vì không có $2$ cột nào trùng nhau, mọi
+        tập hợp gồm $2$ cột bất kỳ đều độc lập tuyến tính, suy ra
+        $\dmin \ge 3$.
   \item Với $h_1 = (1,1,0)$, $h_5 = (1,0,0)$, $h_6 = (0,1,0)$ ta có
         $h_1 \xor h_5 \xor h_6 = 0$. Do đó $c = (1,0,0,0,1,1,0)$ thỏa
         $c\HT = 0$, là từ mã trọng số $3$. Vậy $\dmin \le 3$; kết hợp với
@@ -265,35 +292,13 @@ Với mã $(7,4)$, $t = 1$:
 \[
   2^4\left[\binom{7}{0} + \binom{7}{1}\right] = 16\,(1 + 7) = 128 = 2^7 .
 \]
-Vậy mã Hamming $(7,4)$ là một ví dụ tiêu biểu của mã hoàn hảo. Đây là một mã
-khối tuyến tính nhị phân, trong đó mỗi từ mã gồm $7$ bit, bao gồm $4$ bit dữ
-liệu và $3$ bit kiểm tra chẵn lẻ.
-
-Các phép toán trên các bit được thực hiện trong trường hữu hạn
-$\GF = \{0, 1\}$ (mục~\ref{sec:1.2}), với phép cộng và nhân modulo~2; đặc biệt,
-phép cộng trong $\GF$ tương đương với phép XOR.
-
-Một mã tuyến tính có thể được xác định thông qua ma trận kiểm tra $H$. Tập hợp
-các từ mã hợp lệ là không gian nghiệm của hệ phương trình
-\[
-  C = \{\, c \in \GFn{7} : c\HT = 0 \,\}.
-\]
-Đối với mã Hamming $(7,4)$, ta dùng ma trận kiểm tra ở dạng hệ thống
-$H = [\,\PT \mid I_3\,]$ đã nêu ở mục~\ref{sec:1.6} và~\ref{sec:2.2}, với ba hàng
-lần lượt là $1101100$, $1011010$ và $0111001$:
-\[
-  H = \MatH .
-\]
-Ma trận $H$ có hạng bằng $3$, do đó theo định lý hạng -- số chiều
-\[
-  \dim C = n - \rank H = 7 - 3 = 4 .
-\]
-Vì vậy, mã có $2^4 = 16$ từ mã hợp lệ. Khoảng cách Hamming tối thiểu của mã là
-\[
-  \dmin = 3
-\]
-(mục~\ref{sec:2.4}). Điều này có nghĩa là hai từ mã hợp lệ bất kỳ khác nhau ít
-nhất tại $3$ vị trí.
+Ở đây $k = 4$ vì $\dim C = 7 - \rank H = 4$ (Mệnh đề~\ref{md:GHT}), và $t = 1$
+vì $\dmin = 3$ (mục~\ref{sec:2.4}). Các quả cầu bán kính $1$ quanh các từ mã
+rời nhau vì $\dmin = 3 \ge 2t + 1$: nếu một vectơ cách hai từ mã khác nhau
+không quá $1$ thì theo bất đẳng thức tam giác hai từ mã đó cách nhau không quá
+$2$, trái với $\dmin = 3$. Vậy $16$ quả cầu, mỗi quả $1 + 7 = 8$ điểm, phủ kín
+đúng $128 = 2^7$ vectơ, và mã Hamming $(7,4)$ là mã hoàn hảo: mọi vectơ của
+$\GFn{7}$ hoặc là một từ mã, hoặc khác đúng một từ mã ở đúng một vị trí.
 
 \subsection{Khả năng sửa lỗi và phát hiện lỗi}
 \label{ss:2.5.2}
@@ -320,6 +325,22 @@ không sửa; nếu bật chế độ tự động sửa thì chỉ sửa đư�
 mẫu hai lỗi đều bị sửa nhầm.
 \end{ketluan}
 
+Bảng~\ref{tab:chedo} tóm tắt kết quả giải mã theo từng chế độ; dòng cuối là mã
+mở rộng $(8,4)$ ở mục~\ref{sec:2.7}.
+
+\begin{table}[H]
+\centering\small\renewcommand{\arraystretch}{1.1}
+\caption{Kết quả giải mã theo chế độ và số lỗi trong một khối}
+\label{tab:chedo}
+\begin{tabular}{|p{6.2cm}|p{3.4cm}|p{4.4cm}|}
+\hline
+\textbf{Chế độ giải mã} & \textbf{Khi có $1$ lỗi} & \textbf{Khi có $2$ lỗi}\\ \hline
+$(7,4)$, chỉ phát hiện ($s \neq 0$ thì báo lỗi) & phát hiện, không sửa & phát hiện, không sửa\\ \hline
+$(7,4)$, tự động sửa lỗi đơn (mục~\ref{ss:2.5.3}) & sửa đúng & sửa nhầm thành từ mã khác\\ \hline
+$(8,4)$, SEC-DED (mục~\ref{ss:2.7.3}) & sửa đúng & phát hiện, không sửa\\ \hline
+\end{tabular}
+\end{table}
+
 \subsection{Vì sao không thể vừa sửa 1 lỗi vừa phát hiện 2 lỗi}
 \label{ss:2.5.3}
 
@@ -332,29 +353,59 @@ $j$. Khi đó vectơ lỗi có trọng số Hamming
 \[
   \wt{e} = 2 .
 \]
-Hai lỗi ở vị trí $i \neq j$ cho $s = h_i \xor h_j$. Vì bảy cột của $H$ là đủ
-bảy vectơ khác $0$ của $\GFn{3}$ nên $s$ luôn bằng một cột $h_k$ nào đó, và
-$k \neq i, j$ vì $h_i \xor h_j$ khác $h_i$ và khác $h_j$.
-Bộ giải mã lật bit $k$ và trả về một từ mã $c' \neq c$; khi đó
-$\dist{r}{c'} = 1$ còn $\dist{r}{c} = 2$.
+Hai lỗi ở vị trí $i \neq j$ cho $s = h_i \xor h_j$, và $s \neq 0$ vì
+$h_i \neq h_j$. Vì bảy cột của $H$ là toàn bộ bảy vectơ khác $0$ của
+$\GFn{3}$ (mục~\ref{ss:2.3.3}) nên $s$ luôn bằng một cột $h_k$ nào đó, và
+$k \neq i, j$ vì $h_i \xor h_j$ khác $h_i$ và khác $h_j$ (do các cột đều khác
+$0$). Bộ giải mã đảo bit $k$ của $r$ và trả về $\hat{c}$. Vectơ $\hat{c}$ khác
+$c$ đúng ở ba vị trí $i$, $j$, $k$ và $\hat{c}\HT = s \xor h_k = 0$, nên
+$\hat{c}$ là một từ mã khác $c$; khi đó $\dist{r}{\hat{c}} = 1$ còn
+$\dist{r}{c} = 2$. Ví dụ số với $c = 1011010$ và hai lỗi ở bit $2$, $5$ được
+tính ở mục~\ref{sec:3.5}.
 
-Bộ giải mã theo nguyên tắc khoảng cách gần nhất sẽ chọn $c'$ vì nó gần $r$ hơn.
-Điều này khiến hệ thống sửa nhầm thành một từ mã khác (Hình~\ref{fig:quacau}).
-Trong hình, $c$, $c'$, $c''$ là các từ mã, mỗi vòng tròn là quả cầu Hamming bán
-kính $t = 1$ quanh một từ mã; trên đường nét đứt nối $c$ với $c'$ (khoảng cách
-$3$), vectơ nhận được $r$ cách $c$ hai bước lật bit và cách $c'$ một bước.
+Bộ giải mã theo nguyên tắc khoảng cách gần nhất cũng chọn $\hat{c}$ vì nó gần
+$r$ hơn, nên hệ thống sửa nhầm thành một từ mã khác (Hình~\ref{fig:quacau}).
+Nguyên nhân sâu xa là tính hoàn hảo ở mục~\ref{ss:2.5.1}: mọi vectơ không phải
+từ mã đều nằm trong quả cầu bán kính $1$ của đúng một từ mã, nên ở chế độ tự
+động sửa không còn vectơ nào để bộ giải mã báo ``có hai lỗi''. Trong hình, mỗi
+vòng tròn là quả cầu Hamming bán kính $t = 1$ quanh một từ mã; trên đoạn nét
+đứt nối $c$ với $\hat{c}$ (khoảng cách $3$), điểm rỗng là vectơ cách $c$ một
+bit, còn vectơ nhận được $r$ cách $c$ hai bit và cách $\hat{c}$ một bit, nên
+thuộc quả cầu của $\hat{c}$.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.76\linewidth]{images/hinh_2_1_qua_cau_hamming.png}
-\caption{Quả cầu Hamming bán kính $t$ quanh các từ mã}
+\begin{tikzpicture}[x=1.6cm,y=1.6cm,
+  kc/.style={{Stealth[length=2mm]}-{Stealth[length=2mm]}},
+  nh/.style={font=\small}]
+  \draw[thick] (0,0) circle (1);
+  \draw[thick] (3,0) circle (1);
+  \draw[thick] (5.7,-0.9) circle (1);
+  \draw[dashed] (0,0) -- (3,0);
+  \draw[dotted] (0,0) -- (0,1.3);
+  \draw[dotted] (2,0) -- (2,1.3);
+  \draw[dotted] (3,0) -- (3,1.3);
+  \draw[kc] (0,1.3) -- node[nh,above]{$\dist{r}{c} = 2$} (2,1.3);
+  \draw[kc] (2,1.3) -- node[nh,above]{$\dist{r}{\hat{c}} = 1$} (3,1.3);
+  \draw[dotted] (0,0) -- (0,-1.35);
+  \draw[dotted] (3,0) -- (3,-1.35);
+  \draw[kc] (0,-1.35) -- node[nh,below]{$\dist{c}{\hat{c}} = 3 = \dmin$} (3,-1.35);
+  \draw[-{Stealth[length=2mm]}] (0,0) -- node[nh,above]{$t = 1$} (-1,0);
+  \fill (0,0) circle (2.3pt) node[below right]{$c$};
+  \draw[fill=white] (1,0) circle (2.3pt);
+  \fill (1.92,-0.08) rectangle (2.08,0.08);
+  \node[below left] at (2,-0.04) {$r$};
+  \fill (3,0) circle (2.3pt) node[below right]{$\hat{c}$};
+  \fill (5.7,-0.9) circle (2.3pt) node[nh,below=2pt]{từ mã khác};
+\end{tikzpicture}
+\caption{Quả cầu Hamming bán kính $t = 1$ quanh các từ mã}
 \label{fig:quacau}
 \end{figure}
 
 \begin{ketluan}
 Mã Hamming $(7,4)$ có thể phát hiện hai lỗi nếu chỉ kiểm tra tính hợp lệ của
-từ nhận được. Tuy nhiên, khi bộ giải mã tự động sửa lỗi đơn, hai lỗi luôn bị
-nhầm thành một lỗi đơn và dẫn đến sửa sai. Đây là hạn chế mà mã Hamming mở rộng
+vectơ nhận được. Tuy nhiên, khi bộ giải mã tự động sửa lỗi đơn, hai lỗi luôn bị
+nhầm thành một lỗi đơn và dẫn đến sửa nhầm. Đây là hạn chế mà mã Hamming mở rộng
 được thiết kế để khắc phục.
 \end{ketluan}
 
@@ -366,7 +417,7 @@ nhầm thành một lỗi đơn và dẫn đến sửa sai. Đây là hạn ch�
 \label{ss:2.6.1}
 
 Trong mã hóa tuyến tính, \emph{hội chứng} (syndrome) là một vectơ được sử dụng
-để kiểm tra tính hợp lệ của từ mã nhận được và xác định vị trí lỗi khi xảy ra
+để kiểm tra tính hợp lệ của vectơ nhận được và xác định vị trí lỗi khi xảy ra
 lỗi đơn.
 
 \begin{luuy}
@@ -375,7 +426,16 @@ còn toàn bộ phần còn lại của báo cáo dùng dạng hệ thống. Hai
 sau khi hoán vị cột: nếu $c = (c_1, \dots, c_7)$ là từ mã cổ điển thì
 $(c_3, c_5, c_6, c_7, c_1, c_2, c_4)$ là từ mã hệ thống tương ứng, ví dụ
 $0110011 \leftrightarrow 1011010$. Hội chứng của cùng một bit vật lý là cùng một
-vectơ, chỉ khác nhãn vị trí.
+vectơ, chỉ khác nhãn vị trí. Bảng dưới đối chiếu vị trí của từng bit trong hai
+dạng:
+\begin{center}\small\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+Vị trí ở dạng cổ điển & 1 & 2 & 3 & 4 & 5 & 6 & 7\\ \hline
+Bit & $p_1$ & $p_2$ & $u_1$ & $p_3$ & $u_2$ & $u_3$ & $u_4$\\ \hline
+Vị trí ở dạng hệ thống & 5 & 6 & 1 & 7 & 2 & 3 & 4\\ \hline
+\end{tabular}
+\end{center}
 \end{luuy}
 
 Giả sử $c$ là từ mã được truyền đi và $e$ là vectơ lỗi. Vectơ nhận được là
@@ -459,12 +519,9 @@ Ta tính hội chứng $s = r\HT$. Thực hiện phép nhân ma trận trên $\G
         1&0&0\\ 0&1&0\\ 1&1&0\\ 0&0&1\\ 1&0&1\\ 0&1&1\\ 1&1&1
       \end{bmatrix} .
 \]
-Ta thu được
-\[
-  s = \begin{bmatrix} 1&0&1 \end{bmatrix} = 101 .
-\]
-Đối chiếu với bảng hội chứng (Bảng~\ref{tab:codien}), ta xác định được lỗi nằm
-tại vị trí thứ $5$. Để khôi phục từ mã ban đầu, ta đảo bit thứ $5$:
+Ta thu được $s = (1,0,1)$. Đối chiếu với bảng hội chứng
+(Bảng~\ref{tab:codien}), hoặc tính $j = s_1 + 2s_2 + 4s_3 = 1 + 0 + 4 = 5$, ta
+xác định được lỗi nằm tại vị trí thứ $5$. Để khôi phục từ mã ban đầu, ta đảo bit thứ $5$:
 \[
   \hat{c} = (0,1,1,0,0,1,1) .
 \]
@@ -484,7 +541,8 @@ này là:
         phép nhân ma trận.
 \end{itemize}
 Tuy nhiên, phương pháp này chỉ đảm bảo xác định đúng vị trí khi có tối đa một
-lỗi. Khi có hai lỗi, hội chứng luôn trùng một lỗi đơn nên luôn bị sửa sai. Vì
+lỗi. Khi có hai lỗi, hội chứng luôn trùng hội chứng của một lỗi đơn ở vị trí
+khác nên luôn bị sửa nhầm (mục~\ref{ss:2.5.3}). Vì
 vậy, cần mở rộng ma trận kiểm tra để tăng khả năng phát hiện lỗi.
 
 % =====================================================================
@@ -551,8 +609,13 @@ Do đó, số lượng từ mã hợp lệ vẫn là
 \[
   \dmin = 4 .
 \]
-Thật vậy, từ mã khác $0$ của $(7,4)$ có trọng số $3$, $4$ hoặc $7$ (Bảng
-\ref{tab:16tuma}, mục~\ref{sec:1.7}). Bit $c_8$ bằng $1$ khi trọng số lẻ, nên
+Thật vậy, mỗi từ mã mở rộng $c' = (c_1, \dots, c_7, c_8)$ ở mục~\ref{ss:2.7.1}
+thỏa $c'\,{\Hmr}\tp = 0$: ba thành phần đầu bằng $c\HT = 0$ vì ba hàng đầu
+của $H'$ có phần tử cuối bằng $0$, còn thành phần thứ tư là
+$c_1 \xor \dots \xor c_8 = 0$ theo cách chọn $c_8$. Có $16$ từ mã mở rộng
+như vậy, đôi một khác nhau, và $\lvert C' \rvert = 16$, nên chúng chính là
+toàn bộ $C'$. Từ mã khác $0$ của $(7,4)$ có trọng số $3$, $4$ hoặc $7$
+(Bảng~\ref{tab:16tuma}, mục~\ref{sec:1.7}). Bit $c_8$ bằng $1$ khi trọng số lẻ, nên
 trọng số thành $4$, $4$ hoặc $8$. Mã mở rộng cũng là mã tuyến tính nên, theo
 Mệnh đề~\ref{md:dmin-trongso}, $\dmin = 4$.
 
@@ -564,7 +627,9 @@ Theo công thức xác định khả năng sửa lỗi và phát hiện lỗi (m
 \]
 Như vậy, mã Hamming mở rộng $(8,4)$ có khả năng sửa một lỗi và phát hiện tối
 đa ba lỗi nếu chỉ thực hiện kiểm tra mà không tự động sửa. Đặc biệt, mã này có
-thể thực hiện đồng thời chức năng sửa một lỗi và phát hiện hai lỗi (SEC-DED).
+thể thực hiện đồng thời chức năng sửa một lỗi và phát hiện hai lỗi (SEC-DED);
+điều này không suy ra từ Định lý~\ref{dl:phathien-sua} mà được chứng minh trực
+tiếp ở mục~\ref{ss:2.7.3}.
 
 \subsection{Cơ chế phân biệt lỗi đơn và lỗi kép}
 \label{ss:2.7.3}
@@ -593,37 +658,55 @@ dựng bảng phân loại lỗi (Bảng~\ref{tab:84}).
 \centering\small\renewcommand{\arraystretch}{1.1}
 \caption{Phân loại lỗi của mã Hamming mở rộng (8,4) theo $s$ và $q$}
 \label{tab:84}
-\begin{tabular}{|c|c|l|}
+\begin{tabular}{|c|c|l|l|}
 \hline
-\textbf{Hội chứng} $s$ & \textbf{Bit} $q$ & \textbf{Trạng thái}\\ \hline
-$000$ & $0$ & không phát hiện lỗi\\ \hline
-khác $000$ & $1$ & một lỗi trong $7$ bit đầu\\ \hline
-$000$ & $1$ & một lỗi tại bit thứ $8$\\ \hline
-khác $000$ & $0$ & phát hiện hai lỗi, không thực hiện sửa\\ \hline
+\textbf{Hội chứng} $s$ & \textbf{Bit} $q$ & \textbf{Trạng thái} & \textbf{Hành động}\\ \hline
+$s = 0$ & $0$ & không phát hiện lỗi & giữ nguyên, lấy $4$ bit đầu\\ \hline
+$s \neq 0$ & $1$ & một lỗi trong $7$ bit đầu & đảo bit $j$ có $h_j = s$\\ \hline
+$s = 0$ & $1$ & một lỗi tại bit thứ $8$ & đảo bit $8$ (dữ liệu không đổi)\\ \hline
+$s \neq 0$ & $0$ & phát hiện hai lỗi & không sửa, báo lỗi\\ \hline
 \end{tabular}
 \end{table}
 
 Giải thích:
 \begin{itemize}
-  \item \emph{Trường hợp 1:} $s = 000$, $q = 0$. Cả điều kiện chẵn lẻ của $7$
+  \item \emph{Trường hợp 1:} $s = 0$, $q = 0$. Cả điều kiện chẵn lẻ của $7$
         bit đầu và điều kiện chẵn lẻ tổng thể đều được thỏa mãn. Bộ giải mã kết
-        luận không phát hiện lỗi.
-  \item \emph{Trường hợp 2:} $s \neq 000$, $q = 1$. Hội chứng khác $0$ cho biết
+        luận không phát hiện lỗi; trong phạm vi không quá hai lỗi, đây là
+        trường hợp không có lỗi.
+  \item \emph{Trường hợp 2:} $s \neq 0$, $q = 1$. Hội chứng khác $0$ cho biết
         có lỗi trong $7$ bit đầu. Đồng thời, kiểm tra tổng thể không đạt, cho
         thấy số lượng bit lỗi là lẻ. Trong chế độ SEC-DED, bộ giải mã xác định
         đây là lỗi đơn và đảo bit tại vị trí tương ứng với hội chứng.
-  \item \emph{Trường hợp 3:} $s = 000$, $q = 1$. Ba điều kiện chẵn lẻ đầu tiên
+  \item \emph{Trường hợp 3:} $s = 0$, $q = 1$. Ba điều kiện chẵn lẻ đầu tiên
         vẫn được thỏa mãn nhưng điều kiện chẵn lẻ tổng thể không đạt. Do đó,
         lỗi được xác định tại bit thứ $8$ và bộ giải mã tiến hành đảo bit này.
-  \item \emph{Trường hợp 4:} $s \neq 000$, $q = 0$. Hội chứng khác $0$ nhưng
+  \item \emph{Trường hợp 4:} $s \neq 0$, $q = 0$. Hội chứng khác $0$ nhưng
         tính chẵn lẻ tổng thể vẫn được thỏa mãn. Điều này cho thấy số bit lỗi
         là một số chẵn khác $0$. Trong phạm vi bảo đảm của SEC-DED, đây là
-        trường hợp phát hiện hai lỗi. Từ ba lỗi trở lên, SEC-DED không còn bảo
-        đảm: trong $56$ mẫu ba lỗi, $49$ mẫu bị hiểu là lỗi đơn ở bảy bit đầu
-        và $7$ mẫu bị hiểu là lỗi ở bit thứ tám, không mẫu nào được báo là lỗi
-        kép. Bộ giải mã nhận biết có lỗi nhưng không thực hiện sửa vì không thể
-        xác định duy nhất hai vị trí lỗi.
+        trường hợp phát hiện hai lỗi. Bộ giải mã nhận biết có lỗi nhưng không
+        thực hiện sửa vì không thể xác định duy nhất hai vị trí lỗi.
 \end{itemize}
+
+Bảng phân loại trên là đầy đủ khi có không quá hai lỗi. Không có lỗi thì
+$s = 0$, $q = 0$ (dòng 1). Một lỗi ở vị trí $i \le 7$ cho $s = h_i \neq 0$ và
+$q = 1$ (dòng 2); khi đó bit được đảo là bit $j$ có $h_j = s = h_i$, tức
+$j = i$ vì các cột của $H$ khác nhau, nên lỗi được sửa đúng. Một lỗi ở bit thứ
+tám không ảnh hưởng đến bảy bit đầu nên cho $s = 0$, $q = 1$ (dòng 3). Hai lỗi
+luôn cho $q = 0$ vì số bit bị đảo là chẵn, và cho $s \neq 0$: nếu cả hai lỗi
+nằm trong bảy bit đầu thì $s = h_i \xor h_j \neq 0$ vì $h_i \neq h_j$; nếu
+một lỗi ở bit thứ tám thì $s = h_i \neq 0$ (dòng 4). Vậy mỗi mẫu có không quá
+hai lỗi rơi vào đúng một dòng, và dòng đó cho đúng số lỗi. Đây là chứng minh
+mã $(8,4)$ đồng thời sửa được mọi lỗi đơn và phát hiện được mọi mẫu hai lỗi
+(SEC-DED).
+
+Từ ba lỗi trở lên, SEC-DED không còn bảo đảm. Ba lỗi luôn cho $q = 1$ nên bị
+hiểu là một lỗi đơn: nếu ba vị trí lỗi đều thuộc bảy bit đầu và là ba vị trí
+bit $1$ của một từ mã trọng số $3$ (có $7$ bộ như vậy) thì $s = 0$ và bộ giải
+mã hiểu là lỗi ở bit thứ tám; $56 - 7 = 49$ mẫu còn lại cho $s \neq 0$ và bị
+hiểu là lỗi đơn ở bảy bit đầu. Không mẫu ba lỗi nào được báo là lỗi kép. Bốn
+lỗi trùng một từ mã trọng số $4$ của $C'$ ($14$ mẫu) cho $s = 0$, $q = 0$ nên
+không bị phát hiện.
 
 \subsection{Ví dụ minh họa mã Hamming mở rộng}
 \label{ss:2.7.4}
@@ -645,9 +728,9 @@ nhận được là
 % 13/11/2026: nhóm quyết định ví dụ hai lỗi của mã (8,4) chỉ tính chi tiết
 % ở mục 3.6; ở đây giữ phần đặt đề, đối chiếu bảng và kết luận.
 Hội chứng và kết quả kiểm tra tổng thể của ví dụ này được tính chi tiết ở
-mục~\ref{sec:3.6}: $s = (0,0,1)$ và $q = 0$, tức $s \neq 000$ và $q = 0$.
-Ta có $s \neq 000$ và $q = 0$. Đối chiếu với bảng phân loại (Bảng~\ref{tab:84}),
-hệ thống xác định có lỗi kép và không thực hiện sửa tự động. Như vậy, việc bổ
+mục~\ref{sec:3.6}: $s = (0,0,1) \neq 0$ và $q = 0$. Đối chiếu với bảng phân
+loại (Bảng~\ref{tab:84}), hệ thống xác định có lỗi kép và không thực hiện sửa
+tự động. Như vậy, việc bổ
 sung bit kiểm tra chẵn lẻ tổng thể đã giúp hệ thống phân biệt được trường hợp
 hai lỗi với trường hợp một lỗi đơn.
 
@@ -672,11 +755,16 @@ dữ liệu nhằm nâng cao độ tin cậy. Bảng~\ref{tab:sosanh} so sánh h
 Số bit dữ liệu & 4 & 4\\ \hline
 Số bit kiểm tra & 3 & 4\\ \hline
 Tổng số bit & 7 & 8\\ \hline
+Tốc độ mã & $4/7 \approx 0{,}571$ & $4/8 = 0{,}5$\\ \hline
 Hạng ma trận kiểm tra & 3 & 4\\ \hline
 Số chiều mã & 4 & 4\\ \hline
 Khoảng cách tối thiểu & 3 & 4\\ \hline
 Sửa 1 lỗi & có & có\\ \hline
-Phát hiện 2 lỗi khi không sửa & có & có\\ \hline
+Số lỗi phát hiện tối đa (khi không sửa) & 2 & 3\\ \hline
 SEC-DED & không & có\\ \hline
 \end{tabular}
 \end{table}
+
+Chương~\ref{chap:3} áp dụng các kết quả của Chương~\ref{chap:1} và chương này
+cho dữ liệu cụ thể $u = 1011$, trong đó có hai mẫu lỗi đã nêu ở
+mục~\ref{ss:2.5.3} và mục~\ref{ss:2.7.4}.
