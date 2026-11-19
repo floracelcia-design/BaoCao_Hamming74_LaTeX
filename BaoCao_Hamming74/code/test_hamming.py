@@ -1,3 +1,5 @@
+import sys
+
 from hamming import (
    validate_bits,
    hamming_encode,
@@ -150,15 +152,15 @@ def tc10_all_data():
 # ==========================================
 
 def test_no_error():
-   return tc05_no_error() and tc10_all_data()
+   assert tc05_no_error() and tc10_all_data()
 
 
 def test_single_bit_errors():
-   return tc06_single_bit_errors()
+   assert tc06_single_bit_errors()
 
 
 def test_multiple_errors():
-   return tc07_multiple_errors()
+   assert tc07_multiple_errors()
 
 
 # ==========================================
@@ -210,4 +212,9 @@ def run_all_tests():
 
 
 if __name__ == "__main__":
-   run_all_tests()
+   # Giữ tiếng Việt khi chuyển hướng kết quả ra tệp trên Windows
+   if hasattr(sys.stdout, "reconfigure"):
+       sys.stdout.reconfigure(errors="backslashreplace")
+   _, failed = run_all_tests()
+   # Mã thoát 1 khi có test không đạt (để công cụ tự động nhận biết)
+   sys.exit(1 if failed else 0)

@@ -1,25 +1,40 @@
+# ==========================================
+# KENH DOI XUNG NHI PHAN (BSC)
+# Moi bit bi dao doc lap voi xac suat p: r = c XOR e
+# Du lieu vao/ra: list[int] (cung kieu voi hamming.py, text_codec.py)
+# ==========================================
+
 import random
 
-def simulate_noise_hamming(codeword, error_probability):
-    """
-    Mô hình nhiễu cho mã Hamming (hoặc bất kỳ dãy bit nào).
-    Mỗi bit trong codeword có xác suất error_probability bị lật.
 
-    Tham số:
-    - codeword: chuỗi bit (ví dụ '1010101')
-    - error_probability: xác suất lật bit (float từ 0 đến 1)
-
-    Trả về:
-    - Chuỗi bit sau khi qua kênh nhiễu (một số bit bị đổi)
+def simulate_noise_hamming(bits, error_probability, rng=None):
     """
-    noisy_codeword = []
-    for bit in codeword:
-        rnd = random.random()
-        if rnd < error_probability:
-            # Lật bit nếu random < error_probability
-            flipped_bit = '1' if bit == '0' else '0'
-            noisy_codeword.append(flipped_bit)
-        else:
-            # Giữ bit nguyên
-            noisy_codeword.append(bit)
-    return ''.join(noisy_codeword)
+    Cho danh sach bit di qua kenh BSC.
+
+    Tham so:
+    - bits: list[int], moi phan tu la 0 hoac 1 (thuong la luong bit
+      do encode_text tao ra)
+    - error_probability: xac suat dao bit p, 0 <= p <= 1
+    - rng: bo sinh so ngau nhien, vi du random.Random(seed);
+      bo trong thi dung module random
+
+    Tra ve: danh sach bit moi cung do dai; danh sach dau vao khong doi.
+    Loi: TypeError neu bits khong phai list; ValueError neu co bit khac
+    0, 1 hoac p nam ngoai [0, 1].
+    """
+    if not isinstance(bits, list):
+        raise TypeError("Du lieu phai la list[int]")
+    for bit in bits:
+        if type(bit) is not int or bit not in (0, 1):
+            raise ValueError("Moi bit chi duoc la 0 hoac 1")
+    if not 0 <= error_probability <= 1:
+        raise ValueError("Xac suat phai nam trong [0, 1]")
+
+    if rng is None:
+        rng = random
+
+    # Vecto loi e: e_i = 1 voi xac suat p
+    error = [1 if rng.random() < error_probability else 0 for _ in bits]
+
+    # r = c XOR e
+    return [b ^ e for b, e in zip(bits, error)]

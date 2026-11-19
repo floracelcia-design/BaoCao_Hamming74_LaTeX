@@ -5,7 +5,7 @@
 
 
 # Bang anh xa syndrome -> vi tri loi
-# Vi tri bit tinh tu 1 den 7
+# Moi khoa la mot cot cua H = [P^T | I3]; vi tri bit tinh tu 1 den 7
 syndrome_map = {
     (1, 1, 0): 1,
     (1, 0, 1): 2,
@@ -22,6 +22,8 @@ syndrome_map = {
 # ------------------------------------------
 
 def validate_bits(bits, expected_length):
+    """Kiem tra bits la list gom dung expected_length so nguyen 0/1.
+    Sai kieu: TypeError; sai do dai hoac gia tri: ValueError."""
     if not isinstance(bits, list):
         raise TypeError("Du lieu phai la list[int]")
 
@@ -40,6 +42,7 @@ def validate_bits(bits, expected_length):
 # ------------------------------------------
 
 def hamming_encode(data):
+    """Ma hoa 4 bit du lieu u thanh tu ma 7 bit c = u.G."""
     validate_bits(data, 4)
 
     d1, d2, d3, d4 = data
@@ -62,6 +65,7 @@ def hamming_encode(data):
 # ------------------------------------------
 
 def calculate_syndrome(received):
+    """Tinh hoi chung s = r.H^T cua vecto nhan duoc r (7 bit)."""
     validate_bits(received, 7)
 
     r1, r2, r3, r4, r5, r6, r7 = received
@@ -80,13 +84,17 @@ def calculate_syndrome(received):
 # ------------------------------------------
 
 def hamming_decode(received):
+    """Giai ma mot khoi 7 bit, gia thiet co toi da 1 bit loi.
+    Tra ve tu dien: syndrome, error_position (None neu khong sua),
+    corrected, decoded (4 bit dau cua corrected)."""
     # calculate_syndrome da kiem tra du lieu dau vao
     syndrome = calculate_syndrome(received)
 
     corrected = received.copy()
     error_position = None
 
-    # Neu syndrome khac [0, 0, 0] thi co loi 1 bit
+    # Gia thiet toi da 1 bit loi: syndrome khac 0 thi dao bit tuong ung.
+    # Neu thuc te co tu 2 bit loi, buoc nay se sua nham.
     if syndrome != [0, 0, 0]:
         error_position = syndrome_map[tuple(syndrome)]
 
@@ -96,7 +104,7 @@ def hamming_decode(received):
         # Dao bit bi loi: 0 thanh 1, 1 thanh 0
         corrected[index] ^= 1
 
-    # Lay lai 4 bit du lieu ban dau
+    # Lay 4 bit dau lam du lieu giai ma
     decoded = corrected[:4]
 
     return {

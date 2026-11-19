@@ -1,132 +1,948 @@
 % =====================================================================
 %  CHƯƠNG 4. THIẾT KẾ VÀ XÂY DỰNG PHẦN MỀM MÔ PHỎNG
+%  Nội dung: TV6 (Đức Duy) mục 4.1-4.3 và TV7 (Anh Khôi) mục 4.4-4.6,
+%  bản workspace ngày 19/11/2026 sau đợt sửa của nhóm trưởng
+%  (claude/review_chuong4_lan2_2026-11-19, review_chuong4_latex_2026-11-19).
+%  Thay cho bản khung ngày 11/11/2026.
+%  Mã nguồn đối chiếu: code/hamming.py, text_codec.py, channel.py, main.py,
+%  test_hamming.py (bản 19/11/2026). Mọi ví dụ và số liệu đã chạy lại bằng
+%  chính các file này: Mã 4.1 và 4.2 là đầu ra thật của main.py; khối biến
+%  ở 4.3.4 là kết quả thật của hamming.py; vét cạn 16 x 128 mẫu lỗi bằng
+%  hamming_decode khớp Bảng 5.2.
+%  Nhãn giữ nguyên để chương khác dẫn chiếu: chap:4 (Chương 3), eq:pkhoi
+%  (Chương 5), sec:4.1 ... sec:4.6, fig:quytrinh, tab:module,
+%  eq:s-thanhphan. Mục nhỏ: ss:4.x.y như Chương 2-3.
+%
+%  Chỗ khác với văn bản trong Doc (nhóm trưởng cần đồng bộ lại vào Doc):
+%   1. Dẫn chiếu sang Chương 1-3 viết bằng \ref; thêm dẫn chiếu mục 1.8
+%      (quy trình giải mã 4 bước), 2.3, 2.5.3, Bảng 2.1, Bảng 5.2.
+%   2. 4.1: "dữ liệu đầu vào gồm 4 bit" -> "mỗi khối dữ liệu gồm 4 bit";
+%      các bước viết dạng "Bước n" như mục 1.8; dùng ê, ĉ, û như mục 1.8.
+%   3. 4.1.2: dòng mũi tên thay bằng Hình 4.1 (vẽ lại, 8 khối, ghi tên
+%      module thực hiện mỗi bước).
+%   4. 4.2: Bảng 4.1 thêm main.py; 4.2.3 rút gọn (chi tiết ở 4.4.4);
+%      "do sửa sai" -> "do giải mã sai"; ánh xạ biến thêm corrected (ĉ),
+%      decoded (û), d1-d4; 4.2.4 ghi rõ TC06, TC07 dùng khối nào.
+%   5. 4.3.2: bỏ bảng ánh xạ (trùng Bảng 1.1), nêu từ điển syndrome_map.
+%      4.3.3: thuật toán viết thành 4 bước khớp mục 1.8. 4.3.4: dùng lại
+%      Ví dụ 1.4, in giá trị các biến thay vì tính tay lại. 4.3.5: thêm lý
+%      do kết quả luôn sai khi có từ ba lỗi và s khác 0.
+%   6. 4.4.2: BSC dẫn chiếu mục 1.1, không định nghĩa lại; giải thích vì
+%      sao chương trình nhận p trong [0, 1] trong khi 1.1 chỉ xét p <= 0,5
+%      (trường hợp p = 1). 4.4.3: chuyển nhận xét 15% / 42% từ 4.4.4 lên,
+%      thêm tỉ lệ 97% (trước ở 4.6.1).
+%   7. 4.5.1: Python 3.8 trở lên (khớp README; Doc ghi 3.6). 4.5.4: dán
+%      đầu ra thật của hai lệnh ví dụ (Mã 4.1, 4.2).
+%   8. 4.6: bỏ phần lặp với 4.3 (thuật toán sửa lỗi đơn, hai lỗi, ba lỗi,
+%      câu về mã (8,4)); 4.6 chỉ giữ cách chương trình xử lý.
+%  Sửa ngày 19/11 chiều theo bản nhận xét Chương 4 (9,2/10), xem
+%  claude/phan_hoi_nhan_xet_chuong4_2026-11-19: phạm vi (7,4) ở đầu
+%  chương; Bước 7; Bảng 4.2 dữ liệu trao đổi; decode_text trả chi tiết
+%  từng khối (main.py không giải mã lại); tệp test_he_thong.py (13 ca);
+%  4.3.5 lập luận bằng khoảng cách Hamming; 4.4.3 nói rõ xác suất lý
+%  thuyết; seed; 4.5.1 tệp và môi trường; 4.5.3 in ký tự không biểu diễn
+%  được; chú thích Mã 4.1, 4.2; 4.6.4 chuẩn hóa Unicode.
+%  Sửa ngày 19/11 16:30: cài mã mở rộng (8,4) vào phần mềm (chế độ tùy chọn
+%  --ma 84): module hamming84.py, tệp test_hamming84.py (10 ca), TH14-TH16;
+%  thêm 4.2.2 (các mục nhỏ 4.2.x sau đó lùi một số, nhãn đổi theo), 4.3.6,
+%  Bảng 4.3, 4.4, công thức (4.3), Mã 4.3; Mã 4.1, 4.2 chạy lại (thêm dòng
+%  "Ma Hamming").
+%  CẦN NHÓM TRƯỞNG XÁC NHẬN: dòng "đã chạy thử với Python 3.13" ở 4.5.1
+%  (kiểm tra trên máy chủ của trợ lý); nếu nhóm chạy trên Windows với phiên
+%  bản khác thì ghi thêm phiên bản đó.
 % =====================================================================
 \chapter{THIẾT KẾ VÀ XÂY DỰNG PHẦN MỀM MÔ PHỎNG}
 \label{chap:4}
+% Tên hàm, tên biến dài (kiểu chữ đơn cách) không ngắt dòng được; cho phép
+% giãn khoảng trắng thêm một chút trong chương này để không tràn lề.
+\begingroup
+\setlength{\emergencystretch}{2em}
+
+Chương này hiện thực các bước tính ở Chương~\ref{chap:1}--\ref{chap:3} thành
+một phần mềm Python thực hiện đúng yêu cầu của đề tài: một chuỗi ký tự được mã
+hóa thành chuỗi nhị phân, đi qua kênh có nhiễu, được phát hiện và sửa lỗi, rồi
+được khôi phục thành chuỗi ký tự. Mục~\ref{sec:4.1} mô tả quy trình mô phỏng,
+mục~\ref{sec:4.2} các module của chương trình, mục~\ref{sec:4.3} thuật toán
+giải mã một khối, mục~\ref{sec:4.4} mô hình kênh nhiễu, mục~\ref{sec:4.5} cách
+chạy chương trình và mục~\ref{sec:4.6} các tình huống cần xử lý riêng. Ký hiệu
+và quy ước theo hộp quy ước ở đầu Chương~\ref{chap:1}; mã nguồn đầy đủ ở Phụ
+lục~A.
+
+Theo yêu cầu đề tài, phần mềm mô phỏng mã Hamming $(7,4)$; đây là chế độ mặc
+định và là đối tượng chính của chương. Phần mềm cài thêm mã mở rộng $(8,4)$ ở
+mục~\ref{sec:2.7} làm chế độ tùy chọn, để so sánh hai mã trên cùng một kênh: mã
+$(7,4)$ sửa nhầm mọi mẫu hai lỗi, còn mã $(8,4)$ phát hiện được chúng
+(Bảng~\ref{tab:84}, mục~\ref{sec:3.6}). Các phần riêng của mã $(8,4)$ nằm ở
+mục~\ref{ss:4.2.2}, \ref{ss:4.3.6}, \ref{ss:4.4.3} và~\ref{ss:4.5.4}.
 
 % ---------------------------------------------------------------------
 \section{Quy trình mô phỏng}
 \label{sec:4.1}
 
-Hình~\ref{fig:quytrinh} mô tả quy trình mô phỏng từ chuỗi ký tự đầu vào đến
-chuỗi ký tự khôi phục.
+Phần mềm mô phỏng quá trình mã hóa, truyền dữ liệu, phát hiện và sửa lỗi bằng
+mã Hamming $(7,4)$. Chuỗi ký tự đầu vào được đổi thành các khối dữ liệu, mỗi
+khối gồm $4$ bit; mỗi khối được mã hóa thành một từ mã $7$ bit và được giải mã
+độc lập với các khối khác theo quy trình ở mục~\ref{sec:1.8}. Các bước dưới đây
+viết cho mã $(7,4)$; chỗ khác của chế độ $(8,4)$ được ghi ở cuối Bước~2, 4
+và~5.
+
+\subsection{Các bước thực hiện}
+\label{ss:4.1.1}
+
+\begin{enumerate}[label=\textbf{Bước~\arabic*},leftmargin=2.3cm,labelwidth=1.7cm,labelsep=0.6em,align=left]
+  \item \textbf{(Chia khối):} người dùng nhập một chuỗi ký tự. Chương trình đổi
+        chuỗi thành dãy byte theo UTF-8 (ký tự ASCII chiếm đúng một byte), viết
+        mỗi byte thành $8$ bit với bit cao đứng trước, rồi tách mỗi byte thành
+        hai khối $4$ bit: $4$ bit cao trước, $4$ bit thấp sau. Chẳng hạn ký tự
+        A có byte $01000001$, cho hai khối $0100$ và $0001$
+        (mục~\ref{sec:3.7}). Bước~2 đến Bước~5 được thực hiện cho từng khối
+        $u$.
+  \item \textbf{(Mã hóa):} tính từ mã $c = uG$ theo \eqref{eq:mahoa}, tức giữ
+        nguyên $4$ bit dữ liệu ở vị trí $1$ đến $4$ và ghép ba bit kiểm tra
+        $p_1, p_2, p_3$ tính theo \eqref{eq:bitkiemtra} vào vị trí $5$ đến
+        $7$. Với $u = 1011$ được $c = 1011010$ (Ví dụ~\ref{vd:G}). Ở chế độ
+        $(8,4)$, từ mã được nối thêm bit kiểm tra tổng thể
+        $c_8 = c_1 \xor \dots \xor c_7$ thành $c'$ gồm $8$ bit
+        (mục~\ref{ss:2.7.1}).
+  \item \textbf{(Truyền qua kênh):} từ mã đi qua kênh mô phỏng
+        (mục~\ref{sec:4.4}); mỗi bit có thể bị đảo, cho vectơ nhận được
+        $r = c \xor e$.
+  \item \textbf{(Tính hội chứng):} tính $s = r\HT$ bằng ba phương trình kiểm
+        tra \eqref{eq:s-thanhphan}. Nếu $s = 0$ thì $r$ là một từ mã; nếu
+        $s \neq 0$ thì đã phát hiện có lỗi. Ở chế độ $(8,4)$, chương trình tính
+        thêm $q = r_1 \xor \dots \xor r_8$ (mục~\ref{ss:2.7.3}).
+  \item \textbf{(Sửa lỗi và giải mã):} với giả thiết mỗi khối có nhiều nhất
+        một bit lỗi, nếu $s \neq 0$ chương trình tìm vị trí $j$ có $h_j = s$
+        (Bảng~\ref{tab:hoichung}) và đảo bit $j$; nếu $s = 0$ thì giữ nguyên.
+        Kết quả là từ mã sau sửa $\hat{c}$; dữ liệu giải mã $\hat{u}$ là $4$
+        bit đầu của $\hat{c}$. Khi khối có không quá một bit lỗi thì
+        $\hat{u} = u$. Ở chế độ $(8,4)$, việc sửa theo Bảng~\ref{tab:84}: khi
+        $s \neq 0$ và $q = 0$, khối được báo phát hiện hai lỗi và không được
+        sửa (mục~\ref{ss:4.3.6}).
+  \item \textbf{(Ghép chuỗi):} các khối $\hat{u}$ được nối lại theo đúng thứ
+        tự, cứ $8$ bit thành một byte, rồi đổi dãy byte thành chuỗi ký tự. Với
+        ví dụ trên, $0100$ và $0001$ ghép thành $01000001$, tức ký tự A.
+  \item \textbf{(Đánh giá):} chuỗi giải mã được so sánh với chuỗi đầu vào, và
+        từng khối $\hat{u}$ được so sánh với $u$ để đếm số khối giải mã sai;
+        số liệu này dùng ở Chương~\ref{chap:5}. Bước này chỉ có trong mô
+        phỏng: bộ giải mã ở Bước~4 và~5 chỉ nhận được $r$, còn chương trình mô
+        phỏng biết cả $u$, $c$ và $r$. Vì vậy chương trình đánh giá được chính
+        xác khối nào giải mã sai, nhưng bộ giải mã không thể tự biết mình đã
+        sửa nhầm (mục~\ref{ss:4.3.5}).
+\end{enumerate}
+
+\subsection{Trình tự các bước}
+\label{ss:4.1.2}
+
+Hình~\ref{fig:quytrinh} tóm tắt bảy bước trên; tên module thực hiện mỗi bước
+ghi cạnh khối tương ứng. So với Hình~\ref{fig:sodo} ở mục~\ref{sec:1.8}, hình
+này thêm tầng chuỗi ký tự ở hai đầu và bước đánh giá kết quả. Hình vẽ theo
+chế độ mặc định; ở chế độ $(8,4)$, hai khối mã hóa và sửa lỗi do
+\code{hamming84.py} thực hiện.
 
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[
-  node distance=5mm and 7mm,
-  khoi/.style={draw,rounded corners=2pt,align=center,minimum height=11mm,
-               text width=3.3cm,font=\small,fill=gray!6},
-  kenh/.style={khoi,fill=gray!22},
+  node distance=9mm and 5mm,
+  khoi/.style={draw,align=center,minimum height=15mm,text width=3.15cm,
+               font=\small},
+  kenh/.style={khoi,fill=gray!15},
+  nhan/.style={font=\footnotesize},
   mui/.style={-{Stealth[length=2.2mm]},thick}]
   \node[khoi] (a) {Chuỗi ký tự\\ đầu vào};
-  \node[khoi,right=of a] (b) {Đổi sang byte,\\ tách khối 4 bit $u$};
-  \node[khoi,right=of b] (c) {Mã hóa\\ $c = uG$ (7 bit)};
-  \node[kenh,below=of c] (d) {Kênh BSC\\ $r = c \xor e$};
-  \node[khoi,left=of d] (e) {Hội chứng $s = r\HT$,\\ sửa một bit};
-  \node[khoi,left=of e] (f) {Lấy 4 bit đầu,\\ ghép thành ký tự};
+  \node[khoi,right=of a] (b) {Đổi sang byte,\\ tách khối $4$ bit $u$};
+  \node[khoi,right=of b] (c) {Mã hóa\\ $c = uG$};
+  \node[kenh,right=of c] (d) {Kênh BSC\\ $r = c \xor e$};
+  \node[khoi,below=of d] (e) {Tính hội chứng\\ $s = r\HT$};
+  \node[khoi,left=of e] (f) {Sửa lỗi $\hat{c} = r \xor \hat{e}$,\\
+                             $\hat{u}$ là $4$ bit đầu};
+  \node[khoi,left=of f] (g) {Ghép các khối $\hat{u}$\\ thành chuỗi ký tự};
+  \node[khoi,left=of g] (h) {So sánh với\\ chuỗi đầu vào};
+  \node[nhan,above=1mm of a] {\code{main.py}};
+  \node[nhan,above=1mm of b] {\code{text\_codec.py}};
+  \node[nhan,above=1mm of c] {\code{hamming.py}};
+  \node[nhan,above=1mm of d] {\code{channel.py}};
+  \node[nhan,below=1mm of e] {\code{hamming.py}};
+  \node[nhan,below=1mm of f] {\code{hamming.py}};
+  \node[nhan,below=1mm of g] {\code{text\_codec.py}};
+  \node[nhan,below=1mm of h] {\code{main.py}};
   \draw[mui] (a) -- (b);
-  \draw[mui] (b) -- (c);
-  \draw[mui] (c) -- (d);
-  \draw[mui] (d) -- (e);
-  \draw[mui] (e) -- (f);
+  \draw[mui] (b) -- node[above]{$u$} (c);
+  \draw[mui] (c) -- node[above]{$c$} (d);
+  \draw[mui] (d) -- node[right]{$r$} (e);
+  \draw[mui] (e) -- node[above]{$s$} (f);
+  \draw[mui] (f) -- node[above]{$\hat{u}$} (g);
+  \draw[mui] (g) -- (h);
 \end{tikzpicture}
 \caption{Quy trình mô phỏng mã hóa, gây nhiễu, phát hiện và sửa lỗi}
 \label{fig:quytrinh}
 \end{figure}
 
-\canviet{Mô tả từng bước của quy trình (4.1.1): ký tự $\to$ byte $\to$ hai khối
-4 bit; mã hóa từng khối; truyền qua kênh; tính hội chứng, sửa lỗi; lấy 4 bit
-đầu; ghép các khối thành byte và ký tự. Thay hình trên bằng sơ đồ chính thức
-nếu có.}
-
 % ---------------------------------------------------------------------
 \section{Cấu trúc các module}
 \label{sec:4.2}
 
+Chương trình gồm tám tệp Python (Bảng~\ref{tab:module}): năm tệp của chương
+trình chính và ba tệp kiểm thử. Mỗi module có đầu vào,
+đầu ra xác định và được kiểm thử riêng. Mọi module biểu diễn dãy bit bằng danh
+sách số nguyên (\code{list[int]}), mỗi phần tử là $0$ hoặc $1$, và dùng cùng quy
+ước từ mã $c = (u_1\,u_2\,u_3\,u_4\,p_1\,p_2\,p_3)$.
+
 \begin{table}[H]
-\centering
+\centering\small\renewcommand{\arraystretch}{1.1}
 \caption{Các module của chương trình}
 \label{tab:module}
-\begin{tabular}{|p{3.9cm}|p{11.6cm}|}
+\begin{tabular}{|p{4.0cm}|>{\raggedright\arraybackslash}p{11.8cm}|}
 \hline
 \textbf{Module} & \textbf{Chức năng}\\ \hline
-\code{hamming.py}    & Mã hóa và giải mã một khối: \code{hamming\_encode},
-                       \code{calculate\_syndrome}, \code{hamming\_decode},
-                       kiểm tra đầu vào \code{validate\_bits}.\\ \hline
-\code{text\_codec.py} & Đổi chuỗi ký tự $\leftrightarrow$ dãy bit, tách và ghép
-                       khối 4 bit, gọi \code{hamming.py} cho từng khối.\\ \hline
-\code{channel.py}    & Giả lập kênh truyền có nhiễu (mục~\ref{sec:4.4}).\\ \hline
-\code{test\_hamming.py} & Bộ ca kiểm thử tự động (mục~\ref{sec:5.1}).\\ \hline
+\code{hamming.py} & Mã hóa, tính hội chứng và giải mã một khối:
+  \code{validate\_bits}, \code{hamming\_encode}, \code{calculate\_syndrome},
+  \code{hamming\_decode} (mục~\ref{ss:4.2.1} và~\ref{sec:4.3}).\\ \hline
+\code{hamming84.py} & Mã mở rộng $(8,4)$: \code{hamming84\_encode},
+  \code{calculate\_syndrome84}, \code{hamming84\_decode}
+  (mục~\ref{ss:4.2.2} và~\ref{ss:4.3.6}).\\ \hline
+\code{text\_codec.py} & Đổi chuỗi ký tự $\leftrightarrow$ dãy bit theo UTF-8,
+  chia khối, mã hóa và giải mã cả chuỗi bằng \code{hamming.py} hoặc
+  \code{hamming84.py} (mục~\ref{ss:4.2.3}).\\ \hline
+\code{channel.py} & Kênh đối xứng nhị phân: \code{simulate\_noise\_hamming}
+  (mục~\ref{sec:4.4}).\\ \hline
+\code{main.py} & Chương trình chạy: đọc chuỗi ký tự, $p$, \code{seed} và mã cần
+  dùng; nối các
+  module; in kết quả từng khối và so sánh với chuỗi gửi
+  (mục~\ref{sec:4.5}).\\ \hline
+\code{test\_hamming.py} & $10$ ca kiểm thử tự động cho \code{hamming.py}
+  (mục~\ref{ss:4.2.5} và~\ref{sec:5.1}).\\ \hline
+\code{test\_hamming84.py} & $10$ ca kiểm thử cho \code{hamming84.py}
+  (mục~\ref{ss:4.2.5}).\\ \hline
+\code{test\_he\_thong.py} & $16$ ca kiểm thử tích hợp cho \code{text\_codec.py},
+  \code{channel.py}, \code{main.py} và toàn bộ quy trình
+  (mục~\ref{ss:4.2.5}).\\ \hline
 \end{tabular}
 \end{table}
 
-Trong mã nguồn, biến \code{data} ứng với vectơ $u$, \code{codeword} ứng với
-từ mã $c$, \code{received} ứng với $r$ và \code{syndrome} ứng với $s$; chỉ số
-Python đếm từ $0$ nên bit thứ $i$ của báo cáo là phần tử $i-1$. Mã nguồn đầy
-đủ ở Phụ lục~A.
+\subsection{Module \code{hamming.py}}
+\label{ss:4.2.1}
 
-\canviet{Mô tả chi tiết từng hàm (đầu vào, đầu ra, ngoại lệ). Xác nhận tên
-hàm của \code{text\_codec.py} và \code{channel.py} theo mã nguồn cuối cùng.}
+Module này mã hóa và giải mã một khối, gồm bốn hàm.
+\begin{itemize}
+  \item \code{validate\_bits(bits, expected\_length)} kiểm tra dữ liệu trước
+        khi tính: \code{bits} phải là một danh sách có đúng
+        \code{expected\_length} phần tử, mỗi phần tử là số nguyên $0$ hoặc $1$
+        (giá trị kiểu \code{bool} bị từ chối). Sai kiểu dữ liệu thì báo
+        \code{TypeError}, sai độ dài hoặc giá trị thì báo \code{ValueError}.
+  \item \code{hamming\_encode(data)} nhận $4$ bit dữ liệu, tính ba bit kiểm tra
+        theo \eqref{eq:bitkiemtra} và ghép sau dữ liệu, trả về từ mã $7$ bit
+        $c = uG$.
+  \item \code{calculate\_syndrome(received)} nhận vectơ nhận được $7$ bit và
+        trả về hội chứng ${s = r\HT}$ gồm ba phần tử, tính theo
+        \eqref{eq:s-thanhphan}.
+  \item \code{hamming\_decode(received)} giải mã một khối theo thuật toán ở
+        mục~\ref{ss:4.3.3}, trả về một từ điển gồm hội chứng, vị trí bit đã sửa
+        (\code{None} nếu không sửa bit nào), từ mã sau sửa và dữ liệu giải mã.
+\end{itemize}
+
+Trong mã nguồn, biến \code{data} ứng với $u$, \code{codeword} với $c$,
+\code{received} với $r$, \code{syndrome} với $s$, \code{corrected} với
+$\hat{c}$ và \code{decoded} với $\hat{u}$; trong hàm \code{hamming\_encode},
+các biến \code{d1}--\code{d4} là $u_1$--$u_4$. Theo hộp quy ước
+ở đầu Chương~\ref{chap:1}, bit thứ $i$ của báo cáo là phần tử có chỉ số $i - 1$
+trong danh sách Python.
+
+\subsection{Module \code{hamming84.py}}
+\label{ss:4.2.2}
+
+Module này cài mã mở rộng $(8,4)$ theo mục~\ref{sec:2.7} và dùng lại các hàm của
+\code{hamming.py}, gồm ba hàm.
+\begin{itemize}
+  \item \code{hamming84\_encode(data)} tính từ mã $c = uG$ bằng
+        \code{hamming\_encode} rồi nối thêm $c_8 = c_1 \xor \dots \xor c_7$,
+        trả về từ mã mở rộng $c'$ gồm $8$ bit.
+  \item \code{calculate\_syndrome84(received)} trả về cặp $(s, q)$, tức
+        $s' = r\,{\Hmr}\tp$ ở mục~\ref{ss:2.7.3}: $s$ tính trên bảy bit đầu bằng
+        \code{calculate\_syndrome}, vì ba hàng đầu của $H'$ có phần tử cuối
+        bằng $0$; còn $q = r_1 \xor \dots \xor r_8$.
+  \item \code{hamming84\_decode(received)} giải mã một khối theo
+        Bảng~\ref{tab:84} (thuật toán ở mục~\ref{ss:4.3.6}). Ngoài các khóa như
+        của \code{hamming\_decode}, từ điển kết quả có thêm $q$
+        (\code{parity}), trạng thái giải mã (\code{status}) và cờ
+        \code{double\_error} cho biết khối được báo phát hiện hai lỗi.
+\end{itemize}
+
+\subsection{Module \code{text\_codec.py}}
+\label{ss:4.2.3}
+
+Module này nối chuỗi ký tự với \code{hamming.py}: ở phía gửi, nó đổi chuỗi
+thành các khối $4$ bit và gọi \code{hamming.py} mã hóa từng khối; ở phía nhận,
+nó làm ngược lại.
+\begin{itemize}
+  \item \code{text\_to\_bits(text)} đổi chuỗi ký tự thành danh sách bit theo
+        UTF-8, bit cao đứng trước.
+  \item \code{bits\_to\_text(bits)} đổi danh sách bit (số bit chia hết cho $8$)
+        trở lại thành chuỗi ký tự. Byte không hợp lệ, do một khối bị giải mã
+        sai, được thay bằng ký tự thay thế U+FFFD và chương trình không dừng.
+  \item \code{split\_blocks(bits, size)} chia danh sách bit thành các khối độ
+        dài \code{size}.
+  \item \code{encode\_text(text, extended)} chia dãy bit của chuỗi thành các
+        khối $4$ bit, mã hóa từng khối bằng \code{hamming\_encode} rồi nối lại;
+        mỗi byte thành $14$ bit. Với \code{extended=True}, hàm dùng
+        \code{hamming84\_encode} và mỗi byte thành $16$ bit.
+  \item \code{decode\_text(received, extended)} chia dãy bit nhận được thành
+        các khối $7$ bit, giải mã từng khối bằng \code{hamming\_decode} và ghép
+        các khối dữ liệu thành chuỗi ký tự. Độ dài dãy bit phải là bội của $14$
+        (mỗi byte ứng với hai khối $7$ bit), nếu không hàm báo
+        \code{ValueError}. Với \code{extended=True}, hàm dùng khối $8$ bit,
+        độ dài bội của $16$ và \code{hamming84\_decode}.
+        Hàm trả về một từ điển gồm chuỗi ký tự (\code{text}), dãy bit dữ liệu
+        (\code{decoded\_bits}), vị trí bit đã sửa của từng khối
+        (\code{error\_positions}) và chi tiết giải mã của từng khối
+        (\code{blocks}: vectơ nhận được, hội chứng, vị trí sửa, từ mã sau sửa
+        và dữ liệu giải mã), cùng số khối được báo phát hiện hai lỗi
+        (\code{double\_errors}, luôn bằng $0$ với mã $(7,4)$).
+\end{itemize}
+
+Ví dụ, \code{encode\_text("A")} cho dãy $14$ bit $01001010001111$, trùng với
+kết quả tính tay ở mục~\ref{sec:3.7} (Bảng~\ref{tab:kytuA}). Với mã $(8,4)$,
+hai từ mã $0100101$ và $0001111$ có trọng số $3$ và $4$, nên được nối thêm bit
+$1$ và bit $0$, cho dãy $16$ bit $0100101100011110$.
+
+\subsection{Module \code{channel.py}}
+\label{ss:4.2.4}
+
+Module này mô phỏng kênh truyền theo mô hình kênh đối xứng nhị phân (BSC). Hàm
+\code{simulate\_noise\_hamming} nhận dãy bit của các từ mã, xác suất đảo bit
+$p$ và một bộ sinh số ngẫu nhiên (tùy chọn); nó đảo mỗi bit độc lập với xác suất
+$p$ và trả về một danh sách mới, là vectơ nhận được $r$; danh sách đầu vào không
+bị thay đổi. Mô hình và cách cài
+đặt được trình bày ở mục~\ref{sec:4.4}.
+
+\subsection{Các tệp kiểm thử}
+\label{ss:4.2.5}
+
+Ba tệp kiểm thử chạy độc lập với chương trình chính. Tệp
+\code{test\_hamming.py} gồm $10$ ca kiểm thử tự động cho \code{hamming.py}, kết
+quả ở mục~\ref{sec:5.1}. Các ca kiểm thử chia thành các nhóm:
+\begin{itemize}
+  \item dữ liệu đầu vào hợp lệ, bit không hợp lệ và độ dài sai (TC01--TC03);
+  \item kết quả mã hóa (TC04) và kết quả tính hội chứng (TC08);
+  \item trường hợp không có lỗi, với $u = 1011$ (TC05) và với đủ $16$ khối dữ
+        liệu $4$ bit (TC10);
+  \item sửa lỗi một bit ở cả $7$ vị trí của từ mã $1011010$ (TC06);
+  \item hai bit lỗi ở vị trí $1$ và $2$ của từ mã $1011010$, xác nhận bộ giải
+        mã sửa nhầm (TC07); đây là ví dụ ở Bước~3 của mục~\ref{sec:1.8};
+  \item cấu trúc từ điển kết quả của \code{hamming\_decode} (TC09).
+\end{itemize}
+
+Tệp \code{test\_hamming84.py} gồm $10$ ca kiểm thử (TM01--TM10) cho
+\code{hamming84.py}, đối chiếu với mục~\ref{sec:2.7} và~\ref{sec:3.6}:
+\begin{itemize}
+  \item mã hóa, và $16$ từ mã có trọng số $0$, $4$, $8$, tức $\dmin = 4$;
+  \item $(s, q) = r\,{\Hmr}\tp$ với cả $256$ vectơ $r$;
+  \item bốn dòng của Bảng~\ref{tab:84}, vét cạn trên cả $16$ từ mã: không lỗi,
+        $7$ vị trí lỗi đơn ở bảy bit đầu, lỗi ở bit $8$, $28$ mẫu hai lỗi;
+  \item hai ví dụ ở mục~\ref{sec:3.6}; các mẫu ba và bốn lỗi ngoài phạm vi bảo
+        đảm (mục~\ref{ss:4.3.6}); dữ liệu đầu vào sai.
+\end{itemize}
+
+Tệp \code{test\_he\_thong.py} gồm $16$ ca kiểm thử tích hợp (TH01--TH16) cho các
+module còn lại và cho toàn bộ quy trình:
+\begin{itemize}
+  \item đổi chuỗi ký tự $\leftrightarrow$ dãy bit theo UTF-8 hai chiều, với chuỗi
+        rỗng, chữ tiếng Việt và ký tự nhiều byte (TH01); mã hóa chuỗi, trong đó
+        \code{"A"} cho $01001010001111$ (TH02);
+  \item giải mã khi không có lỗi và khi mỗi khối có tối đa một bit lỗi, kiểm
+        tra cả chuỗi khôi phục lẫn vị trí bit đã sửa (TH03, TH04);
+  \item dữ liệu đầu vào sai và byte hỏng sau giải mã sai (TH05, TH06);
+  \item kênh BSC với $p = 0$ và $p = 1$, tính lặp lại theo \code{seed}, dữ liệu
+        đầu vào sai (TH07--TH09);
+  \item toàn bộ quy trình qua \code{main.py}: hai ví dụ ở mục~\ref{ss:4.5.4}
+        và hai trường hợp biên $p = 0$, $p = 1$ (TH10, TH11);
+  \item vét cạn $16 \times 128$ mẫu lỗi, xác nhận giải mã đúng khi và chỉ khi
+        khối có không quá một bit lỗi (TH12), và so sánh tỉ lệ khối giải mã
+        đúng trên $20\,000$ khối với công thức \eqref{eq:pkhoi} (TH13);
+  \item mã $(8,4)$ trong toàn bộ quy trình: chuỗi ký tự với tối đa một lỗi mỗi
+        khối (TH14), cùng một mẫu nhiễu cho hai mã ở mục~\ref{ss:4.5.4} (TH15),
+        và tỉ lệ khối đúng, báo hai lỗi, sai không bị phát hiện trên $20\,000$
+        khối so với các công thức ở mục~\ref{ss:4.4.3} (TH16).
+\end{itemize}
+Các ca kiểm thử của tệp này dùng lệnh \code{assert}, nên chạy được cả trực tiếp
+lẫn bằng công cụ \code{pytest}; khi chạy trực tiếp, chương trình kết thúc với
+mã lỗi nếu có ca không đạt; \code{test\_hamming84.py} viết theo cùng cách. Cả
+$10$ ca TM và $16$ ca TH đều đạt với mã nguồn ở Phụ lục~A.
+
+\subsection{Mối liên hệ giữa các module}
+\label{ss:4.2.6}
+
+Tệp \code{main.py} nối các module thành chương trình hoàn chỉnh theo
+Hình~\ref{fig:quytrinh}: \code{text\_codec.py} đổi chuỗi ký tự thành các khối
+$4$ bit và gọi \code{hamming.py} mã hóa từng khối; \code{channel.py} cho toàn bộ
+dãy bit đi qua kênh; \code{text\_codec.py} chia dãy bit nhận được thành các
+khối $7$ bit, gọi \code{hamming.py} tính hội chứng, sửa lỗi, giải mã rồi ghép
+thành chuỗi ký tự. Cuối cùng, \code{main.py} so sánh kết quả với chuỗi gửi và
+in báo cáo (mục~\ref{sec:4.5}); hội chứng và vị trí sửa của từng khối được lấy
+từ danh sách \code{blocks} do \code{decode\_text} trả về, nên mỗi khối chỉ được
+giải mã một lần. Tham số \code{--ma} của \code{main.py} quyết định
+\code{text\_codec.py} dùng \code{hamming.py} hay \code{hamming84.py}.
+Bảng~\ref{tab:dulieu} tóm tắt dữ liệu trao đổi giữa các bước với một chuỗi gồm
+$n$ byte UTF-8; mọi dãy bit đều có kiểu \code{list[int]}, số trong ngoặc là của
+mã $(8,4)$.
+
+\begin{table}[H]
+\centering\small\renewcommand{\arraystretch}{1.1}
+\caption{Dữ liệu trao đổi giữa các module (chuỗi gồm $n$ byte UTF-8)}
+\label{tab:dulieu}
+\begin{tabular}{|c|>{\raggedright\arraybackslash}p{5.2cm}|>{\raggedright\arraybackslash}p{4.0cm}|>{\raggedright\arraybackslash}p{5.0cm}|}
+\hline
+\textbf{Bước} & \textbf{Hàm (module)} & \textbf{Đầu vào} & \textbf{Đầu ra}\\ \hline
+1 & \code{text\_to\_bits} (\code{text\_codec.py}) & chuỗi ký tự & $8n$ bit dữ liệu\\ \hline
+2 & \code{encode\_text} (\code{text\_codec.py}) & chuỗi ký tự & $14n$ ($16n$) bit, tức $2n$ từ mã\\ \hline
+3 & \code{simulate\_noise\_hamming} (\code{channel.py}) & $14n$ ($16n$) bit, $p$, bộ sinh số ngẫu nhiên & $14n$ ($16n$) bit nhận được\\ \hline
+4--6 & \code{decode\_text} (\code{text\_codec.py}) & $14n$ ($16n$) bit nhận được & chuỗi ký tự, $8n$ bit dữ liệu, vị trí sửa và chi tiết của $2n$ khối\\ \hline
+7 & \code{simulate}, \code{print\_report} (\code{main.py}) & chuỗi gửi và kết quả các bước trên & bảng từng khối, số khối sai, kết luận khớp hay không\\ \hline
+\end{tabular}
+\end{table}
 
 % ---------------------------------------------------------------------
 \section{Thuật toán lõi}
 \label{sec:4.3}
 
-Mã hóa một khối $u$ theo \eqref{eq:bitkiemtra}. Với vectơ nhận được
-$r = (r_1\,\dots\,r_7)$, mỗi hàng của $H$ cho một thành phần của hội chứng
-$s = r\HT$:
+Thuật toán phát hiện và sửa lỗi của chương trình là phương pháp giải mã bằng
+hội chứng ở mục~\ref{sec:1.8}, áp dụng cho từng khối $7$ bit. Hội chứng cho
+biết vectơ nhận được vi phạm những phương trình kiểm tra nào của mã.
+
+\subsection{Nguyên tắc phát hiện lỗi}
+\label{ss:4.3.1}
+
+Với vectơ nhận được $r = (r_1\,r_2\,\dots\,r_7)$ và ma trận kiểm tra
+$H = [\,\PT \mid I_3\,]$ ở \eqref{eq:H}, hội chứng là
+$s = (s_1\,s_2\,s_3) = r\HT$. Mỗi hàng của $H$ cho một thành phần:
 \begin{equation}\label{eq:s-thanhphan}
   s_1 = r_1 \xor r_2 \xor r_4 \xor r_5, \quad
   s_2 = r_1 \xor r_3 \xor r_4 \xor r_6, \quad
   s_3 = r_2 \xor r_3 \xor r_4 \xor r_7 .
 \end{equation}
-Bảy hội chứng khác $0$ chính là bảy cột của $H$; chương trình tra
-Bảng~\ref{tab:hoichung} để tìm vị trí cần lật.
+Đây là ba phương trình đã dùng để tính tay ở mục~\ref{sec:3.3}--\ref{sec:3.5};
+hàm \code{calculate\_syndrome} tính đúng ba biểu thức này bằng phép XOR. Theo
+\eqref{eq:hoichung}, $s = e\HT$ chỉ phụ thuộc vectơ lỗi, và có hai trường hợp:
+\begin{itemize}
+  \item $s = 0$: $r$ thỏa cả ba phương trình, tức $r$ là một từ mã
+        \eqref{eq:C-ker}; chương trình không phát hiện lỗi.
+  \item $s \neq 0$: $r$ không phải từ mã, tức đã phát hiện có lỗi; với giả
+        thiết chỉ có một bit bị đảo, hội chứng cho biết vị trí bit đó
+        (mục~\ref{ss:4.3.2}).
+\end{itemize}
 
-\canviet{Mã giả hoặc lưu đồ của \code{hamming\_encode} và \code{hamming\_decode};
-ví dụ chạy tay (1011 $\to$ 1011010; lỗi bit 3 $\to$ 1001010; $s = (0,1,1) = h_3$;
-sửa lại 1011010; giải mã 1011). Ghi rõ: khi có đúng hai lỗi, hội chứng luôn
-khác 0 và trùng hội chứng của một lỗi đơn, nên chương trình luôn sửa nhầm; khi
-từ ba lỗi, hội chứng có thể bằng 0.}
+\subsection{Thuật toán xác định vị trí lỗi}
+\label{ss:4.3.2}
+
+Nếu chỉ có một lỗi ở vị trí $j$ thì $s = h_j$, cột thứ $j$ của $H$
+(mục~\ref{sec:1.8}). Bảy cột $h_1, \dots, h_7$ khác $0$ và đôi một khác nhau
+(mục~\ref{sec:2.3}), nên mỗi hội chứng khác $0$ ứng với đúng một vị trí. Chương
+trình lưu Bảng~\ref{tab:hoichung} thành từ điển \code{syndrome\_map}, với khóa
+là hội chứng viết dạng bộ ba, chẳng hạn \mbox{\code{(0, 1, 1)}}, và giá trị là vị trí
+bit từ $1$ đến $7$. Ở dạng hệ thống, hội chứng không đọc ra số thứ tự vị trí nên
+phải tra bảng; cách đọc trực tiếp chỉ đúng với dạng cổ điển ở
+mục~\ref{sec:2.6}. Vị trí $j$ tìm được đổi sang chỉ số Python là
+\code{index = error\_position - 1}.
+
+\subsection{Thuật toán sửa lỗi}
+\label{ss:4.3.3}
+
+Hàm \code{hamming\_decode} giải mã một khối theo bốn bước dưới đây, ứng với
+Bước~2--4 của quy trình ở mục~\ref{sec:1.8}.
+\begin{enumerate}[label=\textbf{Bước~\arabic*},leftmargin=2.3cm,labelwidth=1.7cm,labelsep=0.6em,align=left]
+  \item \textbf{(Kiểm tra đầu vào):} $r$ phải là danh sách $7$ bit
+        (\code{validate\_bits}).
+  \item \textbf{(Tính hội chứng):} tính $s$ theo \eqref{eq:s-thanhphan}.
+  \item \textbf{(Xác định vị trí):} nếu $s = 0$ thì không có bit cần sửa
+        (\code{error\_position} là \code{None}) và $\hat{e} = 0$; nếu
+        $s \neq 0$ thì tra \code{syndrome\_map} được vị trí $j$ có $h_j = s$,
+        và $\hat{e}$ là vectơ chỉ có bit $1$ ở vị trí $j$.
+  \item \textbf{(Sửa lỗi và giải mã):} $\hat{c} = r \xor \hat{e}$, tức đảo bit
+        $j$ bằng phép XOR với $1$; trong mã nguồn đó là lệnh
+        \code{corrected[index] \textasciicircum= 1}. Dữ liệu giải mã $\hat{u}$
+        là $4$ bit đầu của $\hat{c}$ (\mbox{\code{decoded = corrected[:4]}}).
+\end{enumerate}
+Hàm trả về $s$, $j$, $\hat{c}$ và $\hat{u}$. Mỗi khối chỉ cần một lần tính hội
+chứng và một lần tra bảng, và bộ giải mã không cần biết từ mã đã gửi.
+
+\subsection{Minh họa thuật toán}
+\label{ss:4.3.4}
+
+Dùng lại Ví dụ~\ref{vd:lat-bit-3}: dữ liệu $u = 1011$, từ mã $c = 1011010$, bit
+thứ $3$ bị đảo. Phép tính tay hội chứng đã có ở Ví dụ~\ref{vd:lat-bit-3} và
+mục~\ref{sec:3.4}; dưới đây là giá trị các biến khi chạy \code{hamming.py} với
+cùng dữ liệu.
+\begin{Verbatim}
+data           = [1, 0, 1, 1]             # u
+codeword       = [1, 0, 1, 1, 0, 1, 0]    # c = hamming_encode(data)
+received       = [1, 0, 0, 1, 0, 1, 0]    # r: bit thứ 3 bị đảo
+syndrome       = [0, 1, 1]                # s = h3
+error_position = 3                        # index = 2
+corrected      = [1, 0, 1, 1, 0, 1, 0]    # ĉ = c
+decoded        = [1, 0, 1, 1]             # û = u
+\end{Verbatim}
+Hội chứng $(0,1,1) = h_3$ cho vị trí $3$; sau khi đảo bit này, $\hat{c} = c$ và
+$\hat{u} = u$, tức chương trình khôi phục đúng dữ liệu khi có một bit lỗi.
+
+\subsection{Giới hạn của thuật toán}
+\label{ss:4.3.5}
+
+Thuật toán sửa đúng mọi mẫu một bit lỗi: lỗi ở vị trí $j$ cho $s = h_j$ và
+chương trình đảo đúng bit $j$. Ngoài phạm vi đó, kết quả luôn sai.
+\begin{itemize}
+  \item Khi có đúng hai bit lỗi ở hai vị trí $i \neq j$, hội chứng
+        $s = h_i \xor h_j$ khác $0$ và trùng một cột $h_k$ với $k \neq i, j$
+        (mục~\ref{ss:2.5.3}); chương trình đảo bit $k$ và cho ra một từ mã khác
+        từ mã đã gửi, tức sửa nhầm (ví dụ ở mục~\ref{sec:3.5}).
+  \item Khi có từ ba bit lỗi trở lên thì $\dist{r}{c} \ge 3$. Nếu vectơ lỗi là
+        một từ mã khác $0$, hội chứng bằng $0$ nên lỗi không bị phát hiện (ví
+        dụ ở mục~\ref{sec:3.3}) và $\hat{c} = r \neq c$. Nếu hội chứng khác
+        $0$, chương trình đảo đúng một bit nên $\dist{r}{\hat{c}} = 1$; theo bất
+        đẳng thức tam giác (mục~\ref{sec:1.3}),
+        \[
+          \dist{c}{\hat{c}} \ge \dist{c}{r} - \dist{r}{\hat{c}} \ge 3 - 1 = 2,
+        \]
+        nên $\hat{c} \neq c$.
+\end{itemize}
+Trong cả hai trường hợp, $\hat{c}$ là một từ mã khác $c$, mà hai từ mã khác nhau
+ứng với hai khối dữ liệu khác nhau (mục~\ref{sec:1.5}), nên $\hat{u} \neq u$.
+Vậy chương trình giải mã đúng một khối khi và chỉ khi khối có không quá một bit
+lỗi (Bảng~\ref{tab:chedo}; kết quả vét cạn $16 \times 128$ mẫu lỗi ở
+Bảng~\ref{tab:theosoloi}). Bộ giải mã không tự biết khi nào mình sửa nhầm;
+trong mô phỏng, điều này chỉ được xác định khi so sánh với dữ liệu đã gửi. Muốn
+phát hiện được hai lỗi cần dùng mã mở rộng $(8,4)$ ở mục~\ref{sec:2.7}; phần
+mềm cài mã này ở chế độ tùy chọn (mục~\ref{ss:4.3.6}).
+
+\subsection{Giải mã mã mở rộng (8,4)}
+\label{ss:4.3.6}
+
+Ở chế độ $(8,4)$, hàm \code{hamming84\_decode} giải mã một khối
+$r = (r_1\,r_2\,\dots\,r_8)$ theo Bảng~\ref{tab:84}.
+\begin{enumerate}[label=\textbf{Bước~\arabic*},leftmargin=2.3cm,labelwidth=1.7cm,labelsep=0.6em,align=left]
+  \item \textbf{(Kiểm tra đầu vào):} $r$ phải là danh sách $8$ bit.
+  \item \textbf{(Tính hội chứng mở rộng):} $s$ tính theo
+        \eqref{eq:s-thanhphan} trên bảy bit đầu, $q = r_1 \xor \dots \xor r_8$.
+  \item \textbf{(Phân loại):} xét cặp $(s, q)$:
+        \begin{itemize}
+          \item $s = 0$, $q = 0$: không phát hiện lỗi, giữ nguyên;
+          \item $s \neq 0$, $q = 1$: một lỗi trong bảy bit đầu, đảo bit $j$ có
+                $h_j = s$ như ở mục~\ref{ss:4.3.3};
+          \item $s = 0$, $q = 1$: lỗi ở bit thứ tám, đảo bit $8$; bốn bit dữ
+                liệu không đổi;
+          \item $s \neq 0$, $q = 0$: phát hiện hai lỗi, không đảo bit nào và
+                đặt cờ \code{double\_error}.
+        \end{itemize}
+  \item \textbf{(Giải mã):} $\hat{u}$ là $4$ bit đầu của $\hat{c}$. Với khối
+        được báo phát hiện hai lỗi, $\hat{c} = r$ nên $\hat{u}$ chỉ là $4$ bit
+        đầu của $r$ và không đáng tin; chương trình đánh dấu khối đó
+        (\code{PHAT HIEN} trong bảng kết quả) thay vì coi là đã giải mã. Trong
+        một hệ thống truyền thực tế, khối này sẽ được yêu cầu gửi lại; phần mềm
+        chỉ mô phỏng đến bước phát hiện.
+\end{enumerate}
+Hai ví dụ ở mục~\ref{sec:3.6} chạy qua hàm cho đúng kết quả tính tay:
+$r = 11111100$ cho $s = (0,0,1)$, $q = 0$ và được báo hai lỗi; $r = 10110110$
+cho $s = (0,0,1)$, $q = 1$, bit $7$ được đảo và từ mã $10110100$ được khôi
+phục (TM08).
+
+Vì hội chứng chỉ phụ thuộc vectơ lỗi $e$, kết quả giải mã của một khối chỉ phụ
+thuộc $e$. Bảng~\ref{tab:84theok} phân loại cả $256$ vectơ lỗi theo số bit lỗi
+$k$; kết quả như nhau với cả $16$ từ mã (vét cạn bằng \code{test\_hamming84.py}).
+Cấu trúc của bảng giải thích được bằng $q$. Khi $k$ lẻ thì $q = 1$ nên khối
+không bao giờ bị báo hai lỗi; với $k \ge 3$ thì khối bị sửa nhầm, vì
+$\dist{r}{c'} \ge 3$ trong khi $\hat{c}$ khác $r$ không quá một bit (lập luận
+như ở mục~\ref{ss:4.3.5}). Khi $k$ chẵn và $k \ge 2$ thì $q = 0$; khối được báo
+hai lỗi, trừ khi $e$ là một từ mã của $C'$ ($14$ từ mã trọng số $4$ và từ mã
+$11111111$), lúc đó $s = 0$ và lỗi không bị phát hiện. Hai dòng $k = 3$ và
+$k = 4$ trùng với phần ``ngoài phạm vi bảo đảm'' ở cuối mục~\ref{ss:2.7.3}.
+
+\begin{table}[H]
+\centering\small\renewcommand{\arraystretch}{1.1}
+\caption{Kết quả giải mã $(8,4)$ theo số bit lỗi $k$ trong một khối (với mỗi
+  từ mã)}
+\label{tab:84theok}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+$k$ & \textbf{Số mẫu lỗi} & \textbf{Giải mã đúng} & \textbf{Báo hai lỗi} &
+  \textbf{Sai, không bị phát hiện}\\ \hline
+$0$ & $1$  & $1$ & $0$  & $0$\\ \hline
+$1$ & $8$  & $8$ & $0$  & $0$\\ \hline
+$2$ & $28$ & $0$ & $28$ & $0$\\ \hline
+$3$ & $56$ & $0$ & $0$  & $56$\\ \hline
+$4$ & $70$ & $0$ & $56$ & $14$\\ \hline
+$5$ & $56$ & $0$ & $0$  & $56$\\ \hline
+$6$ & $28$ & $0$ & $28$ & $0$\\ \hline
+$7$ & $8$  & $0$ & $0$  & $8$\\ \hline
+$8$ & $1$  & $0$ & $0$  & $1$\\ \hline
+\end{tabular}
+\end{table}
+
+Như vậy, với mã $(8,4)$, một khối được giải mã đúng khi và chỉ khi có không quá
+một bit lỗi, như mã $(7,4)$. Khác biệt nằm ở các khối có lỗi khác: mọi khối có
+đúng hai lỗi được báo ra, thay vì bị sửa nhầm mà phía nhận không biết.
 
 % ---------------------------------------------------------------------
 \section{Mô hình nhiễu}
 \label{sec:4.4}
 
-Kênh truyền được mô phỏng bằng kênh đối xứng nhị phân (BSC, \emph{binary
-symmetric channel}) với xác suất đảo bit $p$, $0 \le p \le 1$: mỗi bit của
-từ mã bị đảo độc lập với xác suất $p$. Vectơ nhận được là $r = c \xor e$,
-và số bit lỗi $k$ trong một khối 7 bit tuân theo phân phối nhị thức
-\begin{equation}
-  \Pr(k \text{ lỗi}) = \binom{7}{k} p^k (1-p)^{7-k}.
-\end{equation}
-Vì mã (7,4) sửa đúng khi và chỉ khi có không quá một lỗi, xác suất một khối
-được giải mã đúng là
+\subsection{Khái niệm mô hình nhiễu trong truyền dữ liệu}
+\label{ss:4.4.1}
+
+Trên kênh truyền thực tế, một số bit có thể bị đảo do nhiễu điện từ hoặc suy
+hao tín hiệu (mục~\ref{sec:1.1}). Mô hình nhiễu tạo lại các lỗi đó bằng chương
+trình: nó đảo ngẫu nhiên một số bit của dãy bit đã mã hóa, sau đó bộ giải mã cho
+biết các lỗi có được sửa đúng hay không. Vì biết trước dữ liệu đã gửi, mô phỏng
+đo được khả năng sửa lỗi của mã Hamming $(7,4)$ ở các mức nhiễu khác nhau.
+
+\subsection{Kênh đối xứng nhị phân (BSC)}
+\label{ss:4.4.2}
+
+Chương trình dùng kênh đối xứng nhị phân (BSC) đã giới thiệu ở
+mục~\ref{sec:1.1}: mỗi bit bị đảo ($0$ thành $1$, $1$ thành $0$) với xác suất
+$p$ và giữ nguyên với xác suất $1 - p$, các bit bị đảo độc lập với nhau. Gọi
+$e$ là vectơ lỗi, với $e_i = 1$ nếu bit thứ $i$ bị đảo; vectơ nhận được là
+$r = c \xor e$.
+
+Chương trình nhận mọi $p \in [0,1]$ để kiểm tra được cả hai trường hợp biên.
+Với $p = 0$, $r = c$. Với $p = 1$, mọi bit bị đảo, tức $e = 1111111$ trong mỗi
+khối; vì $1111111$ là từ mã của $1111$ (STT~$16$ của Bảng~\ref{tab:16tuma}) nên
+$r = c \xor 1111111$ là từ mã của khối dữ liệu bù, hội chứng bằng $0$ và chương
+trình trả về đúng phần bù của dữ liệu mà không phát hiện lỗi. Điều này phù hợp
+với Lưu ý ở mục~\ref{sec:1.1}: với $p > 0{,}5$, chỉ cần đảo mọi bit nhận được
+là có một kênh tốt hơn, nên khi đánh giá mã chỉ cần xét $0 \le p \le 0{,}5$.
+
+\subsection{Áp dụng cho mã Hamming (7,4) và (8,4)}
+\label{ss:4.4.3}
+
+Chương trình cho toàn bộ dãy bit của chuỗi ký tự qua kênh một lần. Vì các bit
+bị đảo độc lập, cách làm này tương đương với cho từng khối $7$ bit qua kênh
+riêng. Theo mục~\ref{sec:1.1}, xác suất một khối $7$ bit có đúng $k$ bit lỗi là
+$\binom{7}{k} p^k (1-p)^{7-k}$. Vì chương trình giải mã đúng một khối khi và chỉ
+khi khối có không quá một bit lỗi (mục~\ref{ss:4.3.5}), xác suất một khối được
+giải mã đúng là
 \begin{equation}\label{eq:pkhoi}
   \Pr(\text{khối đúng}) = (1-p)^7 + 7p(1-p)^6 .
 \end{equation}
+Một ký tự ASCII gồm hai khối bị nhiễu độc lập, nên được giải mã đúng với xác
+suất bằng bình phương giá trị này. Với $p = 0{,}01$; $0{,}05$; $0{,}1$, xác suất
+giải mã đúng một khối lần lượt xấp xỉ $0{,}9980$; $0{,}9556$; $0{,}8503$, và
+xác suất giải mã đúng một ký tự ASCII xấp xỉ $0{,}9959$; $0{,}9132$; $0{,}7230$.
+Nói cách khác, theo mô hình, xác suất một khối bị giải mã sai xấp xỉ $0{,}15$
+khi $p = 0{,}1$ và $0{,}42$ khi $p = 0{,}2$: lợi ích của mã giảm nhanh khi kênh
+xấu đi. Ngược lại, khi $p$ nhỏ, một khối có lỗi thường chỉ có đúng một bit lỗi:
+xác suất có điều kiện của sự kiện này là $7p(1-p)^6 / [1 - (1-p)^7]$, xấp xỉ
+$0{,}97$ khi $p = 0{,}01$. Đây là các giá trị lý thuyết. Trong một lần chạy, tỉ
+lệ khối giải mã sai dao động quanh giá trị lý thuyết, và dao động càng nhỏ khi
+số khối càng lớn. Chương~\ref{chap:5} (Bảng~\ref{tab:ber}) đối chiếu các giá trị
+lý thuyết này với kết quả mô phỏng.
 
-\canviet{Mô tả cách \code{channel.py} cài đặt mô hình: tham số $p$, \code{seed},
-có chế độ gây đúng $k$ lỗi hay không (cần cho mục~\ref{sec:5.2}); không sửa
-đè danh sách đầu vào.}
+Với mã $(8,4)$, khối có $8$ bit nên xác suất giải mã đúng là
+\begin{equation}\label{eq:pkhoi84}
+  \Pr(\text{khối đúng}, (8,4)) = (1-p)^8 + 8p(1-p)^7 ,
+\end{equation}
+nhỏ hơn \eqref{eq:pkhoi} một chút vì khối dài hơn một bit. Bù lại, phần lớn các
+khối có lỗi được báo ra. Theo Bảng~\ref{tab:84theok}, với $q = 1 - p$, xác suất
+một khối được báo hai lỗi và xác suất một khối bị giải mã sai mà không bị phát
+hiện lần lượt là
+\[
+  28p^2q^6 + 56p^4q^4 + 28p^6q^2
+  \quad\text{và}\quad
+  56p^3q^5 + 14p^4q^4 + 56p^5q^3 + 8p^7q + p^8 ,
+\]
+trong khi với mã $(7,4)$ mọi khối giải mã sai đều không bị phát hiện, với xác
+suất $1 - \Pr(\text{khối đúng})$. Bảng~\ref{tab:haima-p} so sánh hai mã. Với
+$p = 0{,}01$, xác suất một khối sai mà không bị phát hiện giảm từ khoảng
+$2 \cdot 10^{-3}$ xuống khoảng $5 \cdot 10^{-5}$, đổi lại khoảng $0{,}26\%$ số
+khối được báo cần gửi lại. Khi $p$ lớn, khối có từ ba lỗi trở nên thường gặp và
+lợi thế này giảm dần.
+
+\begin{table}[H]
+\centering\small\renewcommand{\arraystretch}{1.1}
+\caption{So sánh hai mã trên kênh BSC (xác suất lý thuyết cho một khối)}
+\label{tab:haima-p}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{$p$} & \multicolumn{2}{c|}{\textbf{Mã (7,4)}} &
+  \multicolumn{3}{c|}{\textbf{Mã (8,4)}}\\ \cline{2-6}
+ & \textbf{Đúng} & \textbf{Sai, không phát hiện} & \textbf{Đúng} &
+  \textbf{Báo hai lỗi} & \textbf{Sai, không phát hiện}\\ \hline
+$0{,}01$ & $0{,}9980$ & $0{,}0020$ & $0{,}9973$ & $0{,}0026$ & $0{,}00005$\\ \hline
+$0{,}05$ & $0{,}9556$ & $0{,}0444$ & $0{,}9428$ & $0{,}0517$ & $0{,}0055$\\ \hline
+$0{,}1$  & $0{,}8503$ & $0{,}1497$ & $0{,}8131$ & $0{,}1525$ & $0{,}0344$\\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Hàm mô phỏng kênh trong \code{channel.py}}
+\label{ss:4.4.4}
+
+Hàm \code{simulate\_noise\_hamming} hiện thực mô hình BSC ở
+mục~\ref{ss:4.4.2}; mã nguồn đầy đủ ở Phụ lục~A. Hàm có ba tham số
+\code{bits}, \code{error\_probability} và \code{rng}.
+\begin{itemize}
+  \item \emph{Đầu vào:} \code{bits} là danh sách bit (\code{list[int]}),
+        thường là toàn bộ dãy bit do \code{encode\_text} tạo ra;
+        \code{error\_probability} là xác suất đảo bit $p \in [0,1]$;
+        \code{rng} (tùy chọn) là bộ sinh số ngẫu nhiên, chẳng hạn
+        \code{random.Random(seed)}. Với cùng dữ liệu, cùng \code{seed} cho
+        cùng vectơ lỗi nên thí nghiệm lặp lại được; đổi \code{seed} cho một
+        mẫu nhiễu khác. \code{seed} chỉ chọn mẫu nhiễu cụ thể, không làm thay
+        đổi xác suất đảo bit $p$. Bỏ trống \code{rng} thì hàm dùng module
+        \code{random}.
+  \item \emph{Kiểm tra đầu vào:} \code{bits} phải là danh sách các số nguyên
+        $0$ hoặc $1$ và $p$ phải thuộc $[0,1]$; nếu không, hàm báo
+        \code{TypeError} hoặc \code{ValueError}.
+  \item \emph{Cách xử lý:} với mỗi bit, sinh một số ngẫu nhiên phân bố đều
+        trong $[0,1)$; nếu số đó nhỏ hơn $p$ thì $e_i = 1$, ngược lại
+        $e_i = 0$. Xác suất để số ngẫu nhiên nhỏ hơn $p$ đúng bằng $p$, và các
+        số được sinh độc lập, nên mỗi bit bị đảo độc lập với xác suất $p$, đúng
+        mô hình BSC. Hàm trả về $r = c \xor e$, tức đảo các bit có $e_i = 1$.
+  \item \emph{Đầu ra:} một danh sách bit mới cùng độ dài với đầu vào, chính là
+        vectơ nhận được $r$; danh sách đầu vào không bị thay đổi.
+\end{itemize}
+
+\subsection{Sử dụng trong chương trình}
+\label{ss:4.4.5}
+
+Trong \code{main.py}, dãy bit của chuỗi ký tự do \code{encode\_text} tạo ra
+được cho qua kênh bằng hàm \code{simulate\_noise\_hamming}. Dãy bit nhận được
+sau đó được đưa vào \code{decode\_text} để tính hội chứng, sửa lỗi và khôi phục
+chuỗi ký tự. Vì phía
+mô phỏng biết cả từ mã đã gửi lẫn vectơ nhận được, \code{main.py} đếm được số
+bit bị đảo thật trong từng khối và số khối giải mã sai; các số liệu này dùng ở
+Chương~\ref{chap:5}.
 
 % ---------------------------------------------------------------------
 \section{Cách chạy chương trình}
 \label{sec:4.5}
 
-\canviet{(1) Yêu cầu: phiên bản Python, các file đặt chung thư mục.
-(2) Lệnh chạy. (3) Dữ liệu nhập: chuỗi ký tự, $p$, \code{seed}.
-(4) Một ví dụ chạy và kết quả in ra (nên dùng chuỗi \code{"A"} để khớp
-Mục~\ref{sec:3.7}). Cần mã file chạy hoặc ảnh chụp kết quả thật.}
+\subsection{Yêu cầu và các tệp}
+\label{ss:4.5.1}
+
+Chương trình cần Python~3.8 trở lên và không dùng thư viện ngoài; mã nguồn chỉ
+dùng cú pháp có từ Python~3.6 và đã được chạy thử với Python~3.13. Năm tệp
+\code{hamming.py}, \code{hamming84.py}, \code{text\_codec.py},
+\code{channel.py} và \code{main.py} là đủ để chạy chương trình chính; muốn chạy
+kiểm thử thì cần thêm \code{test\_hamming.py}, \code{test\_hamming84.py} và
+\code{test\_he\_thong.py}. Các tệp đặt chung một
+thư mục (thư mục \code{code} của dự án).
+
+\subsection{Lệnh chạy và tham số}
+\label{ss:4.5.2}
+
+Lệnh chạy có dạng
+\begin{Verbatim}
+python main.py "chuỗi ký tự" --p 0.05 --seed 1 --ma 74
+\end{Verbatim}
+với bốn tham số:
+\begin{itemize}
+  \item \emph{chuỗi ký tự}: chuỗi cần truyền; nếu bỏ trống, chương trình yêu
+        cầu nhập từ bàn phím;
+  \item \code{--p}: xác suất đảo bit $p$ của kênh BSC, $0 \le p \le 1$, mặc
+        định $0{,}05$; giá trị ngoài $[0,1]$ bị từ chối kèm thông báo lỗi;
+  \item \code{--seed}: số nguyên cố định bộ sinh số ngẫu nhiên; cùng
+        \code{seed} và cùng tham số thì cho cùng kết quả, bỏ trống thì mỗi lần
+        chạy cho một kết quả khác;
+  \item \code{--ma}: mã sử dụng, \code{74} cho mã $(7,4)$ (mặc định, có thể
+        bỏ) hoặc \code{84} cho mã mở rộng $(8,4)$.
+\end{itemize}
+Ba tệp kiểm thử (mục~\ref{ss:4.2.5}) chạy riêng bằng ba lệnh sau:
+\begin{Verbatim}
+python test_hamming.py
+python test_hamming84.py
+python test_he_thong.py
+\end{Verbatim}
+
+\subsection{Kết quả in ra}
+\label{ss:4.5.3}
+
+Chương trình in ba phần (xem Mã~\ref{lst:chay-a22}):
+\begin{itemize}
+  \item chuỗi gửi, mã đang dùng, số byte UTF-8, số khối $4$ bit, số bit sau mã
+        hóa, cùng giá trị $p$ và \code{seed};
+  \item bảng các khối, mỗi khối một dòng: dữ liệu $u$, từ mã gửi $c$, vectơ
+        nhận được $r$, số bit bị kênh đảo, hội chứng $s$, vị trí bit đã sửa
+        (dấu \code{-} nếu không sửa), dữ liệu giải mã $\hat{u}$ và kết luận khối
+        đó giải mã đúng (\code{dung}) hay sai (\code{SAI}); với chuỗi dài hơn
+        $16$ khối, bảng chỉ in các khối bị kênh đảo bit; với mã $(8,4)$, bảng có
+        thêm cột $q$, cột hội chứng ghi gọn là \code{s}, và khối được báo hai
+        lỗi có kết luận \code{PHAT HIEN};
+  \item chuỗi nhận được sau giải mã, số khối giải mã sai và kết luận chuỗi nhận
+        khớp (\code{KHOP}) hay không khớp (\code{KHONG KHOP}) chuỗi gửi; với
+        mã $(8,4)$, số khối được báo hai lỗi được in riêng, và dòng
+        \code{Khoi giai ma sai} chỉ đếm các khối sai mà không bị phát hiện.
+\end{itemize}
+Các nhãn được in bằng chữ không dấu. Nếu cửa sổ dòng lệnh hoặc tệp nhận kết quả
+không biểu diễn được một ký tự của chuỗi (chẳng hạn khi chuyển hướng kết quả ra
+tệp trên Windows), ký tự đó được in dưới dạng mã thoát, ví dụ
+\code{\textbackslash u1ebf}, thay vì làm chương trình dừng.
+
+\subsection{Ví dụ chạy}
+\label{ss:4.5.4}
+
+Lệnh \code{python main.py "A" --p 0.1 --seed 22} cho đúng tình huống ở
+mục~\ref{sec:3.7}: kênh đảo bit thứ $3$ của khối thứ nhất, hội chứng
+$(0,1,1) = h_3$ nên chương trình đảo lại bit $3$; khối thứ hai không có lỗi.
+Hai dòng của bảng trong Mã~\ref{lst:chay-a22} trùng với hai cột của
+Bảng~\ref{tab:kytuA}.
+
+\Needspace{16\baselineskip}
+\par\medskip\noindent
+\begin{minipage}{\linewidth}
+\captionof{chuongtrinh}{Một bit lỗi, sửa đúng (chuỗi \code{"A"}, $p = 0{,}1$,
+  \code{seed} $= 22$)}
+\label{lst:chay-a22}
+\end{minipage}
+\par\nopagebreak
+\begin{Verbatim}[fontsize=\scriptsize]
+Chuoi gui        : 'A'
+Ma Hamming       : (7,4)
+Kich thuoc       : 1 byte UTF-8 -> 2 khoi 4 bit -> 14 bit sau ma hoa
+Kenh BSC         : p = 0.1, seed = 22
+
+Khoi | Du lieu | Tu ma gui | Nhan duoc | Bit dao | Hoi chung | Sua bit | Giai ma | Ket qua
+   1 |  0100   |  0100101  |  0110101  |       1 |    011    |       3 |  0100   | dung
+   2 |  0001   |  0001111  |  0001111  |       0 |    000    |       - |  0001   | dung
+
+Chuoi nhan       : 'A'
+Khoi giai ma sai : 0/2
+Ket luan         : chuoi nhan KHOP chuoi gui
+\end{Verbatim}
+
+Lệnh \code{python main.py "A" --p 0.1 --seed 15} cho trường hợp khối thứ nhất
+bị đảo hai bit, ở vị trí $2$ và $6$: từ mã $0100101$ thành $0000111$, hội chứng
+$h_2 \xor h_6 = (1,1,1) = h_4$ nên chương trình đảo nhầm bit $4$ và giải mã ra
+$0001$ thay vì $0100$ (Mã~\ref{lst:chay-a15}). Byte nhận được là $00010001$,
+một ký tự điều khiển không in được, nên chương trình hiển thị nó dưới dạng
+\code{'\textbackslash x11'}.
+
+\Needspace{16\baselineskip}
+\par\medskip\noindent
+\begin{minipage}{\linewidth}
+\captionof{chuongtrinh}{Hai bit lỗi, sửa nhầm (chuỗi \code{"A"}, $p = 0{,}1$,
+  \code{seed} $= 15$)}
+\label{lst:chay-a15}
+\end{minipage}
+\par\nopagebreak
+\begin{Verbatim}[fontsize=\scriptsize]
+Chuoi gui        : 'A'
+Ma Hamming       : (7,4)
+Kich thuoc       : 1 byte UTF-8 -> 2 khoi 4 bit -> 14 bit sau ma hoa
+Kenh BSC         : p = 0.1, seed = 15
+
+Khoi | Du lieu | Tu ma gui | Nhan duoc | Bit dao | Hoi chung | Sua bit | Giai ma | Ket qua
+   1 |  0100   |  0100101  |  0000111  |       2 |    111    |       4 |  0001   | SAI
+   2 |  0001   |  0001111  |  0001111  |       0 |    000    |       - |  0001   | dung
+
+Chuoi nhan       : '\x11'
+Khoi giai ma sai : 1/2
+Ket luan         : chuoi nhan KHONG KHOP chuoi gui
+\end{Verbatim}
+
+Chạy lại đúng lệnh trên với tham số \code{--ma 84} cho Mã~\ref{lst:chay-a84}. Bảy
+số ngẫu nhiên đầu tiên của bộ sinh vẫn như cũ nên kênh vẫn đảo bit $2$ và bit
+$6$ của khối thứ nhất; bit thứ tám không bị đảo. Hội chứng vẫn là
+$h_2 \xor h_6 = (1,1,1)$ nhưng $q = 0$, nên chương trình báo phát hiện hai lỗi và
+không sửa. Chuỗi nhận được vẫn sai (byte $00000001$, hiển thị là
+\code{'\textbackslash x01'}), nhưng lần này phía nhận biết khối thứ nhất có lỗi.
+Hai mã nhận cùng một mẫu nhiễu: mã $(7,4)$ sửa nhầm mà không biết, mã $(8,4)$
+phát hiện được, đúng như Bảng~\ref{tab:haima} ở mục~\ref{sec:3.6}.
+
+\Needspace{16\baselineskip}
+\par\medskip\noindent
+\begin{minipage}{\linewidth}
+\captionof{chuongtrinh}{Cùng mẫu nhiễu, mã $(8,4)$: phát hiện hai lỗi
+  (\code{seed} $= 15$, \code{--ma 84})}
+\label{lst:chay-a84}
+\end{minipage}
+\par\nopagebreak
+\begin{Verbatim}[fontsize=\scriptsize]
+Chuoi gui        : 'A'
+Ma Hamming       : (8,4) mo rong
+Kich thuoc       : 1 byte UTF-8 -> 2 khoi 4 bit -> 16 bit sau ma hoa
+Kenh BSC         : p = 0.1, seed = 15
+
+Khoi | Du lieu | Tu ma gui | Nhan duoc | Bit dao |  s  | q | Sua bit | Giai ma | Ket qua
+   1 |  0100   | 01001011  | 00001111  |       2 | 111 | 0 |       - |  0000   | PHAT HIEN
+   2 |  0001   | 00011110  | 00011110  |       0 | 000 | 0 |       - |  0001   | dung
+
+Chuoi nhan       : '\x01'
+Phat hien 2 loi  : 1/2 khoi (khong sua, can gui lai)
+Khoi giai ma sai : 0/2 (sai ma khong bi phat hien)
+Ket luan         : chuoi nhan KHONG KHOP chuoi gui
+\end{Verbatim}
 
 % ---------------------------------------------------------------------
 \section{Một số xử lý đặc biệt}
 \label{sec:4.6}
 
-\canviet{Chỉ nêu những xử lý chương trình thực sự có, ví dụ: chuỗi rỗng; ký
-tự ngoài ASCII (UTF-8, 2--4 byte mỗi ký tự); byte không hợp lệ sau khi giải
-mã sai được thay bằng U+FFFD; kiểm tra kiểu và độ dài đầu vào
-(\code{TypeError}/\code{ValueError}); các trường hợp biên của kênh ($p = 0$,
-$p = 1$, $p \notin [0,1]$). Lưu ý: hội chứng bằng 0 chỉ cho biết $r$ là một từ
-mã, không chứng tỏ không có lỗi; bộ giải mã (7,4) không biết số lỗi thật.}
+Mục này nêu cách chương trình xử lý một số tình huống riêng; cơ sở toán học của
+các tình huống giải mã đã trình bày ở mục~\ref{sec:4.3}.
+
+\subsection{Sửa lỗi đơn bit}
+\label{ss:4.6.1}
+
+Mã có $\dmin = 3$ nên sửa được mọi lỗi đơn (Định lý~\ref{dl:phathien-sua});
+chương trình hiện thực điều này bằng thuật toán ở mục~\ref{ss:4.3.3}. TC06 kiểm
+tra cả $7$ vị trí lỗi của từ mã $1011010$, và kết quả vét cạn ở
+Bảng~\ref{tab:theosoloi} cho thấy cả $112$ mẫu một lỗi ($16$ khối dữ liệu,
+$7$ vị trí) đều được sửa đúng. Đây là trường hợp quan trọng nhất trong thực tế:
+khi $p$ nhỏ, một khối có lỗi thường chỉ có một bit lỗi (xác suất có điều kiện
+xấp xỉ $0{,}97$ khi $p = 0{,}01$, mục~\ref{ss:4.4.3}). Vị trí bit đã sửa được ghi lại
+(\code{error\_position} trong \code{hamming\_decode}, \code{error\_positions}
+trong \code{decode\_text}) và in ở cột \code{Sua bit} của bảng kết quả. Với mã
+$(8,4)$, mọi lỗi đơn ở cả tám vị trí, kể cả bit kiểm tra tổng thể, cũng được sửa
+đúng (TM05, TM06).
+
+\subsection{Lỗi từ hai bit trở lên trong một khối}
+\label{ss:4.6.2}
+
+Bộ giải mã giả thiết mỗi khối có nhiều nhất một bit lỗi, nên khi có từ hai bit
+lỗi trở lên, chương trình sửa nhầm hoặc không phát hiện được lỗi
+(mục~\ref{ss:4.3.5}); Mã~\ref{lst:chay-a15} là một ví dụ sửa nhầm. Chương trình
+không tự biết khối nào bị sửa nhầm; chỉ phía mô phỏng, vốn biết dữ liệu đã gửi,
+mới đếm được số khối giải mã sai (cột \code{Ket qua} và dòng
+\code{Khoi giai ma sai}, mục~\ref{ss:4.5.3}). Với mã $(7,4)$, chương trình không
+báo được lỗi kép. Khi chạy với \code{--ma 84}, mọi khối có đúng hai bit lỗi được
+báo phát hiện và không bị sửa (mục~\ref{ss:4.3.6}, Mã~\ref{lst:chay-a84}); khối
+có từ ba bit lỗi vẫn có thể bị sửa nhầm hoặc không bị phát hiện
+(Bảng~\ref{tab:84theok}).
+
+\subsection{Hội chứng bằng 0}
+\label{ss:4.6.3}
+
+Khi $s = 0$, vectơ nhận được là một từ mã; chương trình không đảo bit nào
+(\code{error\_position} là \code{None}) và lấy $4$ bit đầu làm dữ liệu giải mã.
+Hội chứng bằng $0$ không bảo đảm không có lỗi: nếu vectơ lỗi trùng một trong
+$15$ từ mã khác $0$ (cần ít nhất ba bit lỗi, mục~\ref{sec:3.3}) thì lỗi không bị
+phát hiện. Trường hợp $p = 1$ ở mục~\ref{ss:4.4.2} là một ví dụ: mọi khối đều có
+hội chứng bằng $0$ nhưng mọi khối đều bị giải mã sai. Với mã $(8,4)$, trường hợp
+$s = 0$ còn phải xét thêm $q$: $q = 1$ được hiểu là lỗi ở bit thứ tám
+(Bảng~\ref{tab:84}).
+
+\subsection{Chuỗi ký tự và dữ liệu đầu vào}
+\label{ss:4.6.4}
+
+Ngoài các tình huống giải mã ở trên, chương trình còn xử lý:
+\begin{itemize}
+  \item \emph{Ký tự ngoài ASCII:} chuỗi được đổi sang UTF-8, nên một ký tự có
+        thể chiếm $2$ đến $4$ byte; chẳng hạn ``é'' gồm $2$ byte, tức $4$ khối
+        và $28$ bit sau mã hóa. Chữ tiếng Việt có dấu ở dạng dựng sẵn chiếm $2$
+        hoặc $3$ byte (mục~\ref{sec:3.7}).
+  \item \emph{Chuẩn hóa Unicode:} chương trình giữ nguyên biểu diễn Unicode của
+        chuỗi, không chuẩn hóa. Một chữ có dấu như ``ế'' có thể ở dạng dựng sẵn
+        (một ký tự mã, $3$ byte) hoặc dạng tổ hợp (chữ ``e'' cùng hai dấu kết
+        hợp, $5$ byte); hai dạng hiển thị giống nhau nhưng là hai dãy byte khác
+        nhau, nên số khối cần truyền cũng khác. Chuỗi nhận được chỉ được coi là
+        khớp khi khôi phục đúng từng ký tự mã của chuỗi đã gửi. Tiêu chí này phù
+        hợp với mục tiêu của mô phỏng là truyền chính xác dãy bit.
+  \item \emph{Chuỗi rỗng:} cho dãy bit rỗng; chương trình in $0$ khối và kết
+        luận chuỗi nhận khớp chuỗi gửi.
+  \item \emph{Byte hỏng sau khi giải mã sai:} dãy byte có thể không còn là
+        UTF-8 hợp lệ; byte lỗi được thay bằng ký tự U+FFFD và chương trình
+        không dừng.
+  \item \emph{Dữ liệu đầu vào sai:} dãy bit phải là danh sách các số nguyên $0$
+        hoặc $1$ (giá trị kiểu \code{bool} bị từ chối) với độ dài đúng, và $p$
+        phải thuộc $[0,1]$; nếu không, các hàm báo \code{TypeError} hoặc
+        \code{ValueError}. Riêng \code{main.py} báo giá trị \code{--p} ngoài
+        $[0,1]$ bằng một thông báo lỗi dòng lệnh.
+\end{itemize}
+\endgroup

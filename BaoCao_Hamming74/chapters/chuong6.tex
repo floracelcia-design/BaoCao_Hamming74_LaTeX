@@ -17,7 +17,10 @@ Chương 5.}
 \section{Hạn chế và hướng phát triển}
 \label{sec:6.2}
 
-\canviet{Hạn chế: chỉ sửa được 1 lỗi mỗi khối; phần mềm (7,4) không báo được
-lỗi kép; tỉ lệ mã $4/7$. Hướng phát triển: cài mã (8,4) vào phần mềm; mã
-Hamming tổng quát $(2^m-1,\,2^m-1-m)$; xen kẽ bit (interleaving) chống lỗi
-chùm; so sánh với các mã khác.}
+\canviet{Hạn chế: chỉ sửa được 1 lỗi mỗi khối; mã (7,4) không báo được lỗi
+kép; mã (8,4) (đã có trong phần mềm, chế độ \code{--ma 84}) phát hiện được lỗi
+kép nhưng không sửa được và vẫn sai khi có từ 3 lỗi; tỉ lệ mã $4/7$ và $4/8$;
+phần mềm chỉ phát hiện, chưa mô phỏng việc gửi lại khối bị báo lỗi. Hướng phát
+triển: mô phỏng yêu cầu gửi lại (ARQ) cho khối bị báo lỗi kép; mã Hamming tổng
+quát $(2^m-1,\,2^m-1-m)$; xen kẽ bit (interleaving) chống lỗi chùm; so sánh với
+các mã khác.}
